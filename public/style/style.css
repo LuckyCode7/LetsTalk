@@ -1,0 +1,123 @@
+body {
+    background-image: url("../img/background.png");
+    margin: 0;
+}
+
+.wrapper {
+    height: 92vh;
+}
+
+.header {
+    margin-top: 2vh;
+    text-align: center;
+    font-size: 50px;
+    font-family: 'Indie Flower', cursive;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: 2%;
+    margin-bottom: 2%;
+}
+
+.container-center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    padding-bottom: 3%;
+    padding-top: 3%;
+    width: 33%;
+    -webkit-box-shadow: 15px 13px 31px 2px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 15px 13px 31px 2px rgba(0, 0, 0, 0.75);
+    box-shadow: 15px 13px 31px 2px rgba(0, 0, 0, 0.75);
+}
+
+.container-left {
+    font-family: 'Indie Flower', cursive;
+    text-align: center;
+    font-size: 40px;
+    width: 33%;
+}
+
+.container-right {
+    font-family: 'Indie Flower', cursive;
+    text-align: center;
+    font-size: 40px;
+    width: 33%;
+}
+
+input[type=text],
+input[type=password] {
+    width: 90%;
+    background-color: rgb(229, 236, 243);
+    color: rgb(48, 44, 44);
+    border: 2px solid black;
+    border-radius: 5px;
+    font-size: 20px;
+    padding: 10px;
+    box-sizing: border-box;
+    outline: none;
+    margin-bottom: 10px;
+}
+
+input[type=text]:focus,
+input[type=password]:focus {
+    border: 2px solid rgb(42, 150, 238);
+}
+
+input[type=submit] {
+    width: 90%;
+    background-color: rgb(42, 150, 238);
+    color: rgb(48, 44, 44);
+    border: 2px solid black;
+    border-radius: 5px;
+    font-size: 20px;
+    padding: 10px;
+    box-sizing: border-box;
+    cursor: pointer;
+    letter-spacing: 2px;
+    margin-top: 20px;
+}
+
+input[type=submit]:hover {
+    background-color: rgb(25, 116, 190);
+}
+
+.footer {
+    height: 3vh;
+    text-align: center;
+    font-family: 'Indie Flower', cursive;
+    font-size: 20px;
+}
+
+@media (max-width: 1160px) {
+    .wrapper {
+        height: 87vh;
+    }
+    .container {
+        flex-direction: column;
+    }
+    .container-center {
+        margin-top: 2%;
+        margin-bottom: 4%;
+        width: 60%;
+    }
+    .container-left {
+        width: 100%;
+    }
+    .container-right {
+        width: 100%;
+    }
+    .footer {
+        font-size: 35px;
+    }
+    .header {
+        font-size: 85px;
+    }
+}
