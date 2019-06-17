@@ -1,36 +1,26 @@
-let http = require('http');
-let fs = require('fs');
+const http = require('http');
+const express = require('express');
+const app = express();
 
-let server = http.createServer((req, res) => {
-    switch (req.url) {
-        case '/':
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            let html = fs.readFileSync('public/html/index.html', 'utf8');
-            res.end(html);
-            break;
-        case '/style/style.css':
-            res.writeHead(200, { 'Content-type': 'text/css' });
-            let css = fs.readFileSync('public/style/style.css', 'utf8');
-            res.end(css);
-            break;
-        case '/img/background.png':
-            res.writeHead(200, { 'Content-Type': 'image/jpeg' });
-            let jpg = fs.readFileSync('public/img/background.png', 'binary');
-            res.end(jpg, 'binary');
-            break;
-        case '/dist/bundle.js':
-            res.writeHead(200, { 'Content-Type': 'text/plain' });
-            let js = fs.readFileSync('dist/bundle.js', 'utf8');
-            res.end(js);
-            break;
-        default:
-            res.writeHead(404, { "Content-Type": "text/plain" });
-            res.write("404 Not Found\n");
-            res.end();
-            break;
-    }
+const httpPort = 8080;
+
+const htdocsPath = 'public/';
+const html = htdocsPath + 'html';
+const css = htdocsPath + 'style';
+const img = htdocsPath + 'img';
+const js = 'dist';
+
+let httpServer = http.createServer(app);
+
+app.use(express.static(html));
+app.use(express.static(css));
+app.use(express.static(img));
+app.use(express.static(js));
+
+app.get('/', (req, res) => {
+    res.sendFile("index.html");
 });
 
-server.listen(8080, () => {
-    console.log("Server is listening on port 8080");
+httpServer.listen(httpPort, () => {
+    console.log(`Server is listening on port: ${httpPort}`);
 });
