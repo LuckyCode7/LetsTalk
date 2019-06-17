@@ -4,7 +4,7 @@
     "description": "",
     "main": "./public",
     "scripts": {
-        "start": "webpack --config webpack.config.js"
+        "start": "webpack --config webpack.config.js & node ./server/server.js"
     },
     "repository": {
         "type": "git",
