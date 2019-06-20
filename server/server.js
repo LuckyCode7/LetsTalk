@@ -2,6 +2,8 @@ const fs = require('fs');
 const http = require('http');
 const https = require('https');
 const express = require('express');
+const reload = require('reload')
+
 const app = express();
 
 const httpPort = 8080;
@@ -37,3 +39,5 @@ httpServer.listen(httpPort, () => {
 httpsServer.listen(httpsPort, () => {
     console.log(`HTTPS Server is listening on port: ${httpsPort}`);
 });
+
+reload(app);
