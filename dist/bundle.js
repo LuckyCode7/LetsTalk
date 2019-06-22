@@ -92,12 +92,11 @@
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Animation_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
 
-
-window.addEventListener('load', () => {
-    _Animation_js__WEBPACK_IMPORTED_MODULE_0__["Animation"].displayTextAsync(_Animation_js__WEBPACK_IMPORTED_MODULE_0__["Intro"].greeting, document.getElementsByClassName('header')[0], 80);
-    _Animation_js__WEBPACK_IMPORTED_MODULE_0__["Animation"].displayTextAsync(_Animation_js__WEBPACK_IMPORTED_MODULE_0__["Intro"].footer, document.getElementsByClassName('footer')[0], 100);
-    _Animation_js__WEBPACK_IMPORTED_MODULE_0__["Animation"].displayTextWithDelay(_Animation_js__WEBPACK_IMPORTED_MODULE_0__["Intro"].leftText, document.getElementsByClassName('container-left')[0], 60, 3000);
-    _Animation_js__WEBPACK_IMPORTED_MODULE_0__["Animation"].displayTextWithDelay(_Animation_js__WEBPACK_IMPORTED_MODULE_0__["Intro"].rightText, document.getElementsByClassName('container-right')[0], 60, 5500);
+window.addEventListener('load', function () {
+  _Animation_js__WEBPACK_IMPORTED_MODULE_0__["Animation"].displayTextAsync(_Animation_js__WEBPACK_IMPORTED_MODULE_0__["Intro"].greeting, document.getElementsByClassName('header')[0], 80);
+  _Animation_js__WEBPACK_IMPORTED_MODULE_0__["Animation"].displayTextAsync(_Animation_js__WEBPACK_IMPORTED_MODULE_0__["Intro"].footer, document.getElementsByClassName('footer')[0], 100);
+  _Animation_js__WEBPACK_IMPORTED_MODULE_0__["Animation"].displayTextWithDelay(_Animation_js__WEBPACK_IMPORTED_MODULE_0__["Intro"].leftText, document.getElementsByClassName('container-left')[0], 60, 3000);
+  _Animation_js__WEBPACK_IMPORTED_MODULE_0__["Animation"].displayTextWithDelay(_Animation_js__WEBPACK_IMPORTED_MODULE_0__["Intro"].rightText, document.getElementsByClassName('container-right')[0], 60, 5500);
 });
 
 /***/ }),
@@ -108,31 +107,51 @@ window.addEventListener('load', () => {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Intro", function() { return Intro; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Animation", function() { return Animation; });
-const Intro = {
-    greeting: "Hi, nice to meet you !",
-    footer: "All rights reserved 2019",
-    leftText: "I'm just wondering ... ",
-    rightText: "Maybe we can talk ?"
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Intro = {
+  greeting: "Hi, nice to meet you !",
+  footer: "All rights reserved 2019",
+  leftText: "I'm just wondering ... ",
+  rightText: "Maybe we can talk ?"
 };
 
-class Animation {
-    static displayTextAsync(text, element, spaceTime) {
-        let i = 0;
-        let timer = setInterval(() => {
-            element.innerText = text.substr(0, i++);
-            if (i == text.length + 1) {
-                clearInterval(timer);
-            }
-        }, spaceTime);
-    }
+var Animation =
+/*#__PURE__*/
+function () {
+  function Animation() {
+    _classCallCheck(this, Animation);
+  }
 
-    static displayTextWithDelay(text, element, spaceTime, delay) {
-        setTimeout(Animation.displayTextAsync, delay, text, element, spaceTime);
-    }
-}
-Animation
+  _createClass(Animation, null, [{
+    key: "displayTextAsync",
+    value: function displayTextAsync(text, element, spaceTime) {
+      var i = 0;
+      var timer = setInterval(function () {
+        element.innerText = text.substr(0, i++);
 
+        if (i == text.length + 1) {
+          clearInterval(timer);
+        }
+      }, spaceTime);
+    }
+  }, {
+    key: "displayTextWithDelay",
+    value: function displayTextWithDelay(text, element, spaceTime, delay) {
+      setTimeout(Animation.displayTextAsync, delay, text, element, spaceTime);
+    }
+  }]);
+
+  return Animation;
+}();
+
+Animation;
 
 
 /***/ })
 /******/ ]);
+//# sourceMappingURL=bundle.js.map
