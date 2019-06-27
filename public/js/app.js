@@ -1,3 +1,4 @@
+require('../style/authMain.scss');
 import { Intro, Animation } from './Animation.js';
 
 window.addEventListener('load', () => {

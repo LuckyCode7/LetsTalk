@@ -5,6 +5,8 @@ const Intro = {
     rightText: "Maybe we can talk ?"
 };
 
+Object.freeze(Intro);
+
 class Animation {
     static displayTextAsync(text, element, spaceTime) {
         let i = 0;

@@ -84,13 +84,16 @@
 /******/ 	return __webpack_require__(__webpack_require__.s = 0);
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
+/******/ ({
+
+/***/ 0:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Animation_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
+/* harmony import */ var _Animation_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8);
+__webpack_require__(1);
+
 
 window.addEventListener('load', function () {
   _Animation_js__WEBPACK_IMPORTED_MODULE_0__["Animation"].displayTextAsync(_Animation_js__WEBPACK_IMPORTED_MODULE_0__["Intro"].greeting, document.getElementsByClassName('header')[0], 80);
@@ -100,7 +103,15 @@ window.addEventListener('load', function () {
 });
 
 /***/ }),
-/* 1 */
+
+/***/ 1:
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+
+/***/ 8:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -119,6 +130,7 @@ var Intro = {
   leftText: "I'm just wondering ... ",
   rightText: "Maybe we can talk ?"
 };
+Object.freeze(Intro);
 
 var Animation =
 /*#__PURE__*/
@@ -153,5 +165,6 @@ Animation;
 
 
 /***/ })
-/******/ ]);
+
+/******/ });
 //# sourceMappingURL=bundle.js.map

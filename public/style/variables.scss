@@ -1,0 +1,29 @@
+$defaultFont: 'Indie Flower',
+cursive;
+$mainBackground: '../img/background.png';
+$headerFontSize: 50px;
+$containerAsideFontSize: 40px;
+$authPageColor: white;
+@mixin flexible {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+@mixin flexibleRow {
+    @include flexible;
+    flex-direction: row;
+}
+
+@mixin flexibleColumn {
+    @include flexible;
+    flex-direction: column;
+}
+
+@mixin container-aside {
+    font-family: $defaultFont;
+    text-align: center;
+    font-size: $containerAsideFontSize;
+    width: 33%;
+}

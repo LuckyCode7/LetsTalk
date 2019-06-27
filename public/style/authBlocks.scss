@@ -1,0 +1,74 @@
+body {
+    background-image: url($mainBackground);
+    margin: 0;
+}
+
+.wrapper {
+    height: 92vh;
+}
+
+.header {
+    margin-top: 2vh;
+    text-align: center;
+    font-size: $headerFontSize;
+    font-family: $defaultFont;
+}
+
+.container {
+    @include flexibleRow;
+    width: 100%;
+    margin-top: 2%;
+    margin-bottom: 2%;
+}
+
+.container-center {
+    @include flexibleColumn;
+    background-color: $authPageColor;
+    padding-bottom: 3%;
+    padding-top: 3%;
+    width: 33%;
+    -webkit-box-shadow: 15px 13px 31px 2px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 15px 13px 31px 2px rgba(0, 0, 0, 0.75);
+    box-shadow: 15px 13px 31px 2px rgba(0, 0, 0, 0.75);
+}
+
+.container-right {
+    @include container-aside;
+}
+
+.container-left {
+    @include container-aside;
+}
+
+.footer {
+    height: 3vh;
+    text-align: center;
+    font-family: $defaultFont;
+    font-size: 20px;
+}
+
+@media (max-width: 1160px) {
+    .wrapper {
+        height: 87vh;
+    }
+    .container {
+        flex-direction: column;
+    }
+    .container-center {
+        margin-top: 2%;
+        margin-bottom: 4%;
+        width: 60%;
+    }
+    .container-left {
+        width: 100%;
+    }
+    .container-right {
+        width: 100%;
+    }
+    .footer {
+        font-size: 35px;
+    }
+    .header {
+        font-size: 85px;
+    }
+}
