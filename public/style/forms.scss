@@ -1,0 +1,135 @@
+#login,
+#pass {
+    width: 90%;
+    background-color: transparent;
+    border: 0px;
+    border-bottom: 2px solid black;
+    font-size: 1.2vw;
+    padding: 10px;
+    box-sizing: border-box;
+    outline: none;
+    margin-bottom: 10px;
+}
+
+#login:focus,
+#pass:focus {
+    border-bottom: 2px solid rgba(14, 103, 175, 0.657);
+}
+
+#guest-id:focus {
+    border-bottom: 2px solid rgba(14, 103, 175, 0.657);
+}
+
+.log-btn {
+    width: 90%;
+    background-color: rgba(14, 103, 175, 0.657);
+    color: black;
+    border: 0px;
+    border-radius: 5px;
+    font-size: 1.5vw;
+    padding: 10px;
+    box-sizing: border-box;
+    cursor: pointer;
+    letter-spacing: 2px;
+    margin-top: 20px;
+}
+
+.send-btn {
+    width: 9%;
+    background-color: rgba(14, 103, 175, 0.657);
+    color: black;
+    border: 0px;
+    border-radius: 4px;
+    // font-size: 0.7vw;
+    height: 35px;
+    padding: 10px;
+    box-sizing: border-box;
+    cursor: pointer;
+    margin-top: 2%;
+    margin-left: 2%;
+    float: left;
+}
+
+.call-btn {
+    width: 9%;
+    height: 35px;
+    border: 0px;
+    border-radius: 4px;
+    //  font-size: 0.7vw;
+    padding: 10px;
+    box-sizing: border-box;
+    cursor: pointer;
+    margin-top: 2%;
+    margin-right: 2%;
+    //  height: 1.7vh;
+    float: left;
+}
+
+.call-active {
+    background-color: rgba(26, 182, 34, 0.657);
+}
+
+.call-inactive {
+    background-color: rgba(182, 26, 26, 0.657);
+}
+
+.log-btn:hover {
+    background-color: rgba(14, 86, 144, 0.486);
+}
+
+.invite-btn:hover {
+    background-color: rgba(15, 75, 124, 0.657);
+}
+
+.call-active:hover {
+    background-color: rgba(21, 121, 26, 0.657);
+}
+
+.call-inactive:hover {
+    background-color: rgba(149, 11, 11, 0.657);
+}
+
+.log-btn:focus {
+    outline: 0;
+}
+
+.send-btn:focus {
+    outline: 0;
+}
+
+.call-btn:focus {
+    outline: 0;
+}
+
+#user-id {
+    text-align: center;
+    text-shadow: 0 0 3px rgba(17, 76, 124, 0.507), 0 0 5px rgb(21, 127, 214);
+    margin-bottom: 7%;
+    width: 80%;
+    font-size: 1.5vw;
+    padding: 10px 0px;
+}
+
+#guest-id {
+    width: 80%;
+    background-color: $shadowBackground;
+    border: 0px;
+    border-bottom: 2px solid black;
+    font-size: 1.5vw;
+    padding: 7px;
+    box-sizing: border-box;
+    outline: none;
+    text-align: center;
+    margin-top: 4%;
+}
+
+@include placeholder;
+@media (max-width: 1160px) {
+    #login,
+    #pass {
+        font-size: 4vw;
+    }
+    .button {
+        font-size: 4vw;
+    }
+}

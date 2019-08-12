@@ -1,12 +1,33 @@
 $defaultFont: 'Indie Flower',
 cursive;
-$mainBackground: '../img/background.png';
-$headerFontSize: 50px;
-$containerAsideFontSize: 40px;
-$authPageColor: white;
+$shadowBackground: rgba(0, 0, 0, 0.356);
+$mainBackground: '../img/test3.png';
+$headerFontSize: 3vw;
+$containerAsideFontSize: 2vw;
+$authColor: $shadowBackground;
+$footerColor: rgba(14, 103, 175, 0.191);
+;
+@mixin placeholder {
+     ::-webkit-input-placeholder {
+        /* Chrome/Opera/Safari */
+        color: black;
+    }
+     ::-moz-placeholder {
+        /* Firefox 19+ */
+        color: black;
+    }
+     :-ms-input-placeholder {
+        /* IE 10+ */
+        color: black;
+    }
+     :-moz-placeholder {
+        /* Firefox 18- */
+        color: black;
+    }
+}
+
 @mixin flexible {
     display: flex;
-    flex-direction: row;
     justify-content: center;
     align-items: center;
 }

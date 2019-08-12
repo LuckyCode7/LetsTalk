@@ -95,11 +95,13 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__(1);
 
 
-window.addEventListener('load', function () {
-  _Animation_js__WEBPACK_IMPORTED_MODULE_0__["Animation"].displayTextAsync(_Animation_js__WEBPACK_IMPORTED_MODULE_0__["Intro"].greeting, document.getElementsByClassName('header')[0], 80);
-  _Animation_js__WEBPACK_IMPORTED_MODULE_0__["Animation"].displayTextAsync(_Animation_js__WEBPACK_IMPORTED_MODULE_0__["Intro"].footer, document.getElementsByClassName('footer')[0], 100);
-  _Animation_js__WEBPACK_IMPORTED_MODULE_0__["Animation"].displayTextWithDelay(_Animation_js__WEBPACK_IMPORTED_MODULE_0__["Intro"].leftText, document.getElementsByClassName('container-left')[0], 60, 3000);
-  _Animation_js__WEBPACK_IMPORTED_MODULE_0__["Animation"].displayTextWithDelay(_Animation_js__WEBPACK_IMPORTED_MODULE_0__["Intro"].rightText, document.getElementsByClassName('container-right')[0], 60, 5500);
+$(document).ready(function () {
+  _Animation_js__WEBPACK_IMPORTED_MODULE_0__["Animation"].displayTextAsync(_Animation_js__WEBPACK_IMPORTED_MODULE_0__["Intro"].greeting, $('.header'), 80);
+  _Animation_js__WEBPACK_IMPORTED_MODULE_0__["Animation"].displayTextAsync(_Animation_js__WEBPACK_IMPORTED_MODULE_0__["Intro"].footer, $('.footer'), 100);
+  _Animation_js__WEBPACK_IMPORTED_MODULE_0__["Animation"].displayTextWithDelay(_Animation_js__WEBPACK_IMPORTED_MODULE_0__["Intro"].leftText, $('.log-container-left'), 60, 3000);
+  _Animation_js__WEBPACK_IMPORTED_MODULE_0__["Animation"].displayTextWithDelay(_Animation_js__WEBPACK_IMPORTED_MODULE_0__["Intro"].rightText, $('.log-container-right'), 60, 5500);
+  _Animation_js__WEBPACK_IMPORTED_MODULE_0__["Animation"].setText($('#login'), "Login");
+  _Animation_js__WEBPACK_IMPORTED_MODULE_0__["Animation"].setText($('#pass'), "Password");
 });
 
 /***/ }),
@@ -126,7 +128,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 var Intro = {
   greeting: "Hi, nice to meet you !",
-  footer: "All rights reserved 2019",
+  footer: "All rights reserved " + new Date().getFullYear(),
   leftText: "I'm just wondering ... ",
   rightText: "Maybe we can talk ?"
 };
@@ -144,7 +146,7 @@ function () {
     value: function displayTextAsync(text, element, spaceTime) {
       var i = 0;
       var timer = setInterval(function () {
-        element.innerText = text.substr(0, i++);
+        element.text(text.substr(0, i++));
 
         if (i == text.length + 1) {
           clearInterval(timer);
@@ -156,15 +158,26 @@ function () {
     value: function displayTextWithDelay(text, element, spaceTime, delay) {
       setTimeout(Animation.displayTextAsync, delay, text, element, spaceTime);
     }
+  }, {
+    key: "setText",
+    value: function setText(object, text) {
+      object.on({
+        focus: function focus() {
+          object.attr('placeholder', '');
+        },
+        blur: function blur() {
+          object.attr('placeholder', text);
+        }
+      });
+    }
   }]);
 
   return Animation;
 }();
 
-Animation;
 
 
 /***/ })
 
 /******/ });
-//# sourceMappingURL=bundle.js.map
+//# sourceMappingURL=app-bundle.js.map

@@ -1,6 +1,6 @@
 const Intro = {
     greeting: "Hi, nice to meet you !",
-    footer: "All rights reserved 2019",
+    footer: "All rights reserved " + new Date().getFullYear(),
     leftText: "I'm just wondering ... ",
     rightText: "Maybe we can talk ?"
 };
@@ -11,7 +11,7 @@ class Animation {
     static displayTextAsync(text, element, spaceTime) {
         let i = 0;
         let timer = setInterval(() => {
-            element.innerText = text.substr(0, i++);
+            element.text(text.substr(0, i++));
             if (i == text.length + 1) {
                 clearInterval(timer);
             }
@@ -21,7 +21,13 @@ class Animation {
     static displayTextWithDelay(text, element, spaceTime, delay) {
         setTimeout(Animation.displayTextAsync, delay, text, element, spaceTime);
     }
+
+    static setText(object, text) {
+        object.on({
+            focus: () => { object.attr('placeholder', '') },
+            blur: () => { object.attr('placeholder', text) }
+        });
+    }
 }
-Animation
 
 export { Intro, Animation };
