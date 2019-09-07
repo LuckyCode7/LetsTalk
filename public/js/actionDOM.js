@@ -1,9 +1,4 @@
-var connection = null;
-var localStream;
-var call;
-
-
-export const displayMsg = (message, mode) => {
+export const displayMsg = (message, mode, connector) => { //peer
     if (message.content !== "") {
         const singleMsgBox = $("<div class='" + mode + "'></div>").text(message.content);
         const timeStamp = $("<div class=time-stamp></div>").text(generateTimeStamp());
@@ -12,7 +7,7 @@ export const displayMsg = (message, mode) => {
 
         switch (mode) {
             case 'single-user-msg':
-                if (connection === null) {
+                if (!connector.isConnectionCreated()) {
                     alert('First select the guest');
                     return;
                 }
@@ -93,7 +88,7 @@ export const createVideo = () => {
     $("#video-box").fadeIn("slow").css('display', 'flex');
 }
 
-export const removeVideo = () => {
+const removeVideo = () => {
     if ($("#user-video")[0].srcObject) {
         $("#user-video")[0].srcObject.getTracks().forEach(track => track.stop());
     }
@@ -126,16 +121,16 @@ export const setRecivedBoxScrollBar = () => {
     getActiveReciveBox().scrollTop(getActiveReciveBox()[0].scrollHeight);
 }
 
-export const captureUserCamera = (peer) => {
+const captureUserCamera = (connector) => { //peer
     const constraints = { video: true, audio: true };
 
     if (navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices.getUserMedia(constraints).then(stream => {
             $("#user-video")[0].srcObject = new MediaStream(stream.getVideoTracks());
-            localStream = stream;
+            connector.setLocalStream(stream);
         }).then(() => {
             $.get('/getUserPeer', { login: getConnectedGuest() }, (guestPeer, status) => {
-                call = peer.call(guestPeer, localStream);
+                connector.sendLocalStreamToGuest(guestPeer);
             });
         }).catch(e => {
             console.log(e);
@@ -145,15 +140,14 @@ export const captureUserCamera = (peer) => {
     }
 }
 
-export const handleVideo = peer => {
-    if (connection !== null) {
+export const handleVideo = connector => {
+    if (!connector.isConnectionCreated()) {
         if (!isVideoOn()) {
             createVideo();
-            captureUserCamera(peer);
+            captureUserCamera(connector);
         } else {
             removeVideo();
-            call.close();
-            localStream = null;
+            connector.stopStreaming();
         }
         changeCallBtnBackground();
     } else {
@@ -161,21 +155,23 @@ export const handleVideo = peer => {
     }
 }
 
-export const sendMsg = () => {
-    if (connection !== null) {
+export const sendMsg = (connector) => {
+    if (connector.isConnectionCreated()) {
         const message = {
             sender: getCookie('login'),
             content: $('#send-box').val()
         }
 
-        connection.send(message);
+        connector.sendMessageToGuest(message);
     }
 }
 
-export const connect = (guestLogin, peer) => {
+const connect = (guestLogin, connector) => {
     $.get('/getUserPeer', { login: guestLogin }, function(guestPeer, status) {
-        connection = peer.connect(guestPeer);
-        connection.on('open', () => {});
+        // connection = peer.connect(guestPeer);
+        // connection.on('open', () => {});
+
+        connector.createConnectionTo(guestPeer);
     });
 }
 
@@ -209,7 +205,7 @@ export const displayUserReciveBox = user => {
     $('#recived-box-' + user.login).css('display', 'block');
 }
 
-export const handleUsers = (peer) => {
+export const handleUsers = (connector) => {
     $.get('/getUsers', function(users, status) {
         users.forEach(user => {
             if (user.login !== getCookie('login')) {
@@ -232,7 +228,7 @@ export const handleUsers = (peer) => {
 
                     setUserBoxBackgroundColor(userBox);
 
-                    connect(user.login, peer);
+                    connect(user.login, connector);
 
                     displayUserInfo(user);
 
@@ -269,11 +265,9 @@ export const getCookie = (key) => {
     return cookieObj[key];
 }
 
-export const logOut = () => { // co ? ? ? 
+export const logOut = () => {
     $.get('/logout', (data, status) => {
-        $.get('/logout', (data, status) => {
-            window.location.replace(data.url);
-        });
+        window.location.replace(data.url);
     });
 }
 

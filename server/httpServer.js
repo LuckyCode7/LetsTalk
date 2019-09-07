@@ -9,7 +9,7 @@ const WebSocketServer = require('ws').Server;
 const moment = require('moment');
 
 const configDB = {
-    host: '192.168.0.10',
+    host: '192.168.1.12',
     user: 'root',
     pass: 'root',
     port: 3306

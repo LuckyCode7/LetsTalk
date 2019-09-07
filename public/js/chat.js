@@ -1,4 +1,4 @@
-import Peer from 'peerjs';
+import { Connector } from './webRTC.js';
 import { Intro, Animation } from './Animation.js';
 import * as Action from './actionDOM.js';
 
@@ -6,76 +6,63 @@ $(document).ready((event) => {
 
     Animation.setText($('#send-box'), "Write here . . .");
 
-    const peer = new Peer(Action.getCookie('peer'), {
-        config: {
-            'iceServers': [
-                { url: 'stun:stun1.l.google.com:19302' },
-                {
-                    url: 'turn:numb.viagenie.ca',
-                    credential: 'muazkh',
-                    username: 'webrtc@live.com'
-                }
-            ]
-        }
-    });
+    const connector = new Connector(Action.getCookie('peer'));
 
-    Action.handleUsers(peer);
-
-    peer.on('open', () => {
-        // $('#user-id').text(peer.id);
-    });
+    Action.handleUsers(connector);
 
     //
     // User recived msg from guest
     //
 
-    peer.on('connection', conn => {
-        conn.on('data', message => {
-            Action.displayMsg(message, "single-guest-msg");
-        });
-    });
+    connector.onReciveMessage(Action.displayMsg);
+
+    // peer.on('connection', conn => {
+    //     conn.on('data', message => {
+    //         Action.displayMsg(message, "single-guest-msg");
+    //     });
+    // });
 
     // peer.on('disconnected', () => {
     //     $.get('/activity', { login: getCookie('login') });
     // });
 
-    peer.on('call', call => {
-        if (!Action.isVideoOn()) {
-            var acceptsCall = confirm("Videocall incoming, do you want to accept it ?");
-        }
+    // peer.on('call', call => {
+    //     if (!Action.isVideoOn()) {
+    //         var acceptsCall = confirm("Videocall incoming, do you want to accept it ?");
+    //     }
 
-        if (acceptsCall) {
+    //     if (acceptsCall) {
 
-            Action.handleVideo(peer);
+    //         Action.handleVideo(peer);
 
-            call.answer(Action.localStream);
+    //         call.answer(Action.localStream);
 
-            call.on('stream', stream => {
-                $("#guest-video")[0].srcObject = stream;
-            });
+    //         call.on('stream', stream => {
+    //             $("#guest-video")[0].srcObject = stream;
+    //         });
 
-            // Handle when the call finishes
-            call.on('close', function() {
-                alert("The videocall has finished");
-            });
-        } else {
-            call.answer(Action.localStream);
+    //         // Handle when the call finishes
+    //         call.on('close', function() {
+    //             alert("The videocall has finished");
+    //         });
+    //     } else {
+    //         call.answer(Action.localStream);
 
-            call.on('stream', stream => {
-                $("#guest-video")[0].srcObject = stream;
+    //         call.on('stream', stream => {
+    //             $("#guest-video")[0].srcObject = stream;
 
-            });
+    //         });
 
-            // Handle when the call finishes
-            call.on('close', function() {
-                alert("The videocall has finished");
-            });
-        }
-    });
+    //         // Handle when the call finishes
+    //         call.on('close', function() {
+    //             alert("The videocall has finished");
+    //         });
+    //     }
+    // });
 
     $(".send-btn").click(() => {
-        Action.displayMsg({ sender: Action.getCookie('login'), content: $('#send-box').val() }, "single-user-msg");
-        Action.sendMsg();
+        Action.displayMsg({ sender: Action.getCookie('login'), content: $('#send-box').val() }, "single-user-msg", connector);
+        Action.sendMsg(connector);
         Action.setDefaultBoxHeight($('#send-box'));
         Action.clearBox($('#send-box'));
         Action.setRecivedBoxScrollBar();
@@ -86,14 +73,14 @@ $(document).ready((event) => {
     });
 
     $('#call-btn').click(() => {
-        Action.handleVideo(peer);
+        Action.handleVideo(connector);
     });
 
     $('#send-box').keydown(function(e) {
         if (Action.isEnterPressed(e)) {
             e.preventDefault();
-            Action.displayMsg({ sender: Action.getCookie('login'), content: $('#send-box').val() }, "single-user-msg");
-            Action.sendMsg();
+            Action.displayMsg({ sender: Action.getCookie('login'), content: $('#send-box').val() }, "single-user-msg", connector);
+            Action.sendMsg(connector);
             Action.setDefaultBoxHeight($(this));
             Action.clearBox($(this));
             Action.setRecivedBoxScrollBar();

@@ -163,72 +163,59 @@ function () {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var peerjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(10);
-/* harmony import */ var peerjs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(peerjs__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _webRTC_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(10);
 /* harmony import */ var _Animation_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
-/* harmony import */ var _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(12);
+/* harmony import */ var _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(13);
 
 
 
 $(document).ready(function (event) {
   _Animation_js__WEBPACK_IMPORTED_MODULE_1__["Animation"].setText($('#send-box'), "Write here . . .");
-  var peer = new peerjs__WEBPACK_IMPORTED_MODULE_0___default.a(_actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["getCookie"]('peer'), {
-    config: {
-      'iceServers': [{
-        url: 'stun:stun1.l.google.com:19302'
-      }, {
-        url: 'turn:numb.viagenie.ca',
-        credential: 'muazkh',
-        username: 'webrtc@live.com'
-      }]
-    }
-  });
-  _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["handleUsers"](peer);
-  peer.on('open', function () {// $('#user-id').text(peer.id);
-  }); //
+  var connector = new _webRTC_js__WEBPACK_IMPORTED_MODULE_0__["Connector"](_actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["getCookie"]('peer'));
+  _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["handleUsers"](connector); //
   // User recived msg from guest
   //
 
-  peer.on('connection', function (conn) {
-    conn.on('data', function (message) {
-      _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["displayMsg"](message, "single-guest-msg");
-    });
-  }); // peer.on('disconnected', () => {
+  connector.onReciveMessage(_actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["displayMsg"]); // peer.on('connection', conn => {
+  //     conn.on('data', message => {
+  //         Action.displayMsg(message, "single-guest-msg");
+  //     });
+  // });
+  // peer.on('disconnected', () => {
   //     $.get('/activity', { login: getCookie('login') });
   // });
+  // peer.on('call', call => {
+  //     if (!Action.isVideoOn()) {
+  //         var acceptsCall = confirm("Videocall incoming, do you want to accept it ?");
+  //     }
+  //     if (acceptsCall) {
+  //         Action.handleVideo(peer);
+  //         call.answer(Action.localStream);
+  //         call.on('stream', stream => {
+  //             $("#guest-video")[0].srcObject = stream;
+  //         });
+  //         // Handle when the call finishes
+  //         call.on('close', function() {
+  //             alert("The videocall has finished");
+  //         });
+  //     } else {
+  //         call.answer(Action.localStream);
+  //         call.on('stream', stream => {
+  //             $("#guest-video")[0].srcObject = stream;
+  //         });
+  //         // Handle when the call finishes
+  //         call.on('close', function() {
+  //             alert("The videocall has finished");
+  //         });
+  //     }
+  // });
 
-  peer.on('call', function (call) {
-    if (!_actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["isVideoOn"]()) {
-      var acceptsCall = confirm("Videocall incoming, do you want to accept it ?");
-    }
-
-    if (acceptsCall) {
-      _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["handleVideo"](peer);
-      call.answer(_actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["localStream"]);
-      call.on('stream', function (stream) {
-        $("#guest-video")[0].srcObject = stream;
-      }); // Handle when the call finishes
-
-      call.on('close', function () {
-        alert("The videocall has finished");
-      });
-    } else {
-      call.answer(_actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["localStream"]);
-      call.on('stream', function (stream) {
-        $("#guest-video")[0].srcObject = stream;
-      }); // Handle when the call finishes
-
-      call.on('close', function () {
-        alert("The videocall has finished");
-      });
-    }
-  });
   $(".send-btn").click(function () {
     _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["displayMsg"]({
       sender: _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["getCookie"]('login'),
       content: $('#send-box').val()
-    }, "single-user-msg");
-    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["sendMsg"]();
+    }, "single-user-msg", connector);
+    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["sendMsg"](connector);
     _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["setDefaultBoxHeight"]($('#send-box'));
     _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["clearBox"]($('#send-box'));
     _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["setRecivedBoxScrollBar"]();
@@ -237,7 +224,7 @@ $(document).ready(function (event) {
     _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["logOut"]();
   });
   $('#call-btn').click(function () {
-    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["handleVideo"](peer);
+    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["handleVideo"](connector);
   });
   $('#send-box').keydown(function (e) {
     if (_actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["isEnterPressed"](e)) {
@@ -245,8 +232,8 @@ $(document).ready(function (event) {
       _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["displayMsg"]({
         sender: _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["getCookie"]('login'),
         content: $('#send-box').val()
-      }, "single-user-msg");
-      _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["sendMsg"]();
+      }, "single-user-msg", connector);
+      _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["sendMsg"](connector);
       _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["setDefaultBoxHeight"]($(this));
       _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["clearBox"]($(this));
       _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["setRecivedBoxScrollBar"]();
@@ -269,6 +256,96 @@ $(document).ready(function (event) {
 
 /***/ }),
 /* 10 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Connector", function() { return Connector; });
+/* harmony import */ var peerjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(11);
+/* harmony import */ var peerjs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(peerjs__WEBPACK_IMPORTED_MODULE_0__);
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+
+var Connector =
+/*#__PURE__*/
+function () {
+  function Connector(peer) {
+    _classCallCheck(this, Connector);
+
+    this.connection = null;
+    this.localStream = null;
+    this.call = null;
+    this.peer = new peerjs__WEBPACK_IMPORTED_MODULE_0___default.a(peer, {
+      config: {
+        'iceServers': [{
+          url: 'stun:stun1.l.google.com:19302'
+        }, {
+          url: 'turn:numb.viagenie.ca',
+          credential: 'muazkh',
+          username: 'webrtc@live.com'
+        }]
+      }
+    });
+  }
+
+  _createClass(Connector, [{
+    key: "createConnectionTo",
+    value: function createConnectionTo(guestPeer) {
+      this.connection = this.peer.connect(guestPeer);
+      this.connection.on('open', function () {});
+    }
+  }, {
+    key: "onOpenConnection",
+    value: function onOpenConnection(callback) {
+      this.peer.on('open', callback);
+    }
+  }, {
+    key: "onReciveMessage",
+    value: function onReciveMessage(callback) {
+      this.peer.on('connection', function (conn) {
+        conn.on('data', function (message) {
+          callback(message, "single-guest-msg");
+        });
+      });
+    }
+  }, {
+    key: "sendMessageToGuest",
+    value: function sendMessageToGuest(message) {
+      this.connection.send(message);
+    }
+  }, {
+    key: "sendLocalStreamToGuest",
+    value: function sendLocalStreamToGuest(guestPeer) {
+      this.call = this.peer.call(guestPeer, this.localStream);
+    }
+  }, {
+    key: "isConnectionCreated",
+    value: function isConnectionCreated() {
+      return this.connection !== null;
+    }
+  }, {
+    key: "setLocalStream",
+    value: function setLocalStream(stream) {
+      this.localStream = stream;
+    }
+  }, {
+    key: "stopStreaming",
+    value: function stopStreaming() {
+      this.call.close();
+      this.call = null;
+      this.localStream = null;
+    }
+  }]);
+
+  return Connector;
+}();
+
+/***/ }),
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var require;// modules are defined as an array
@@ -306,7 +383,7 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 
         // Try the node require function if it exists.
         if ( true && typeof name === 'string') {
-          return __webpack_require__(11)(name);
+          return __webpack_require__(12)(name);
         }
 
         var err = new Error('Cannot find module \'' + name + '\'');
@@ -409,7 +486,7 @@ var t=require("./util");function e(n,i){if(!(this instanceof e))return new e(n);
 //# sourceMappingURL=/peerjs.min.map
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports) {
 
 function webpackEmptyContext(req) {
@@ -420,10 +497,10 @@ function webpackEmptyContext(req) {
 webpackEmptyContext.keys = function() { return []; };
 webpackEmptyContext.resolve = webpackEmptyContext;
 module.exports = webpackEmptyContext;
-webpackEmptyContext.id = 11;
+webpackEmptyContext.id = 12;
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -437,14 +514,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isVideoOn", function() { return isVideoOn; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setDefaultBoxHeight", function() { return setDefaultBoxHeight; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createVideo", function() { return createVideo; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "removeVideo", function() { return removeVideo; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "changeCallBtnBackground", function() { return changeCallBtnBackground; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "autoSize", function() { return autoSize; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setRecivedBoxScrollBar", function() { return setRecivedBoxScrollBar; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "captureUserCamera", function() { return captureUserCamera; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleVideo", function() { return handleVideo; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "sendMsg", function() { return sendMsg; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "connect", function() { return connect; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setUserBoxBackgroundColor", function() { return setUserBoxBackgroundColor; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "displayUserInfo", function() { return displayUserInfo; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "displayUserReciveBox", function() { return displayUserReciveBox; });
@@ -454,10 +528,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleMenu", function() { return handleMenu; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "searchUser", function() { return searchUser; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isEnterPressed", function() { return isEnterPressed; });
-var connection = null;
-var localStream;
-var call;
-var displayMsg = function displayMsg(message, mode) {
+var displayMsg = function displayMsg(message, mode, connector) {
+  //peer
   if (message.content !== "") {
     var singleMsgBox = $("<div class='" + mode + "'></div>").text(message.content);
     var timeStamp = $("<div class=time-stamp></div>").text(generateTimeStamp());
@@ -465,7 +537,7 @@ var displayMsg = function displayMsg(message, mode) {
 
     switch (mode) {
       case 'single-user-msg':
-        if (connection === null) {
+        if (!connector.isConnectionCreated()) {
           alert('First select the guest');
           return;
         }
@@ -527,6 +599,7 @@ var createVideo = function createVideo() {
   $('.guest-video').append(guestVideo);
   $("#video-box").fadeIn("slow").css('display', 'flex');
 };
+
 var removeVideo = function removeVideo() {
   if ($("#user-video")[0].srcObject) {
     $("#user-video")[0].srcObject.getTracks().forEach(function (track) {
@@ -544,6 +617,7 @@ var removeVideo = function removeVideo() {
   $('#guest-video').remove();
   $("#video-box").css('display', 'none').fadeOut("slow");
 };
+
 var changeCallBtnBackground = function changeCallBtnBackground() {
   $('#call-btn').toggleClass('call-inactive');
   $('.fa-phone').toggleClass('fa-phone-slash');
@@ -559,7 +633,9 @@ var autoSize = function autoSize(el) {
 var setRecivedBoxScrollBar = function setRecivedBoxScrollBar() {
   getActiveReciveBox().scrollTop(getActiveReciveBox()[0].scrollHeight);
 };
-var captureUserCamera = function captureUserCamera(peer) {
+
+var captureUserCamera = function captureUserCamera(connector) {
+  //peer
   var constraints = {
     video: true,
     audio: true
@@ -568,12 +644,12 @@ var captureUserCamera = function captureUserCamera(peer) {
   if (navigator.mediaDevices.getUserMedia) {
     navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
       $("#user-video")[0].srcObject = new MediaStream(stream.getVideoTracks());
-      localStream = stream;
+      connector.setLocalStream(stream);
     }).then(function () {
       $.get('/getUserPeer', {
         login: getConnectedGuest()
       }, function (guestPeer, status) {
-        call = peer.call(guestPeer, localStream);
+        connector.sendLocalStreamToGuest(guestPeer);
       });
     })["catch"](function (e) {
       console.log(e);
@@ -582,15 +658,15 @@ var captureUserCamera = function captureUserCamera(peer) {
     alert("Can not acces user camera");
   }
 };
-var handleVideo = function handleVideo(peer) {
-  if (connection !== null) {
+
+var handleVideo = function handleVideo(connector) {
+  if (!connector.isConnectionCreated()) {
     if (!isVideoOn()) {
       createVideo();
-      captureUserCamera(peer);
+      captureUserCamera(connector);
     } else {
       removeVideo();
-      call.close();
-      localStream = null;
+      connector.stopStreaming();
     }
 
     changeCallBtnBackground();
@@ -598,23 +674,26 @@ var handleVideo = function handleVideo(peer) {
     alert('First select guest');
   }
 };
-var sendMsg = function sendMsg() {
-  if (connection !== null) {
+var sendMsg = function sendMsg(connector) {
+  if (connector.isConnectionCreated()) {
     var message = {
       sender: getCookie('login'),
       content: $('#send-box').val()
     };
-    connection.send(message);
+    connector.sendMessageToGuest(message);
   }
 };
-var connect = function connect(guestLogin, peer) {
+
+var connect = function connect(guestLogin, connector) {
   $.get('/getUserPeer', {
     login: guestLogin
   }, function (guestPeer, status) {
-    connection = peer.connect(guestPeer);
-    connection.on('open', function () {});
+    // connection = peer.connect(guestPeer);
+    // connection.on('open', () => {});
+    connector.createConnectionTo(guestPeer);
   });
 };
+
 var setUserBoxBackgroundColor = function setUserBoxBackgroundColor(userBox) {
   $('.single-user-box').css('background-color', '');
   userBox.css('background-color', 'rgba(9, 64, 109, 0.486)');
@@ -645,7 +724,7 @@ var displayUserReciveBox = function displayUserReciveBox(user) {
   $('.recived-box').css('display', 'none');
   $('#recived-box-' + user.login).css('display', 'block');
 };
-var handleUsers = function handleUsers(peer) {
+var handleUsers = function handleUsers(connector) {
   $.get('/getUsers', function (users, status) {
     users.forEach(function (user) {
       if (user.login !== getCookie('login')) {
@@ -658,7 +737,7 @@ var handleUsers = function handleUsers(peer) {
         $('.msg-box').prepend(reciveMsgBox);
         userBox.click(function () {
           setUserBoxBackgroundColor(userBox);
-          connect(user.login, peer);
+          connect(user.login, connector);
           displayUserInfo(user);
           displayUserReciveBox(user);
           userBox.find('.unread-msg').css('visibility', 'hidden');
@@ -689,11 +768,8 @@ var getCookie = function getCookie(key) {
   return cookieObj[key];
 };
 var logOut = function logOut() {
-  // co ? ? ? 
   $.get('/logout', function (data, status) {
-    $.get('/logout', function (data, status) {
-      window.location.replace(data.url);
-    });
+    window.location.replace(data.url);
   });
 };
 var handleMenu = function handleMenu(event) {
