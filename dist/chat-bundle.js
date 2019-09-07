@@ -170,83 +170,25 @@ __webpack_require__.r(__webpack_exports__);
 
 
 $(document).ready(function (event) {
-  _Animation_js__WEBPACK_IMPORTED_MODULE_1__["Animation"].setText($('#send-box'), "Write here . . .");
   var connector = new _webRTC_js__WEBPACK_IMPORTED_MODULE_0__["Connector"](_actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["getCookie"]('peer'));
-  _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["handleUsers"](connector); //
-  // User recived msg from guest
-  //
-
-  connector.onReciveMessage(_actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["displayMsg"]); // peer.on('connection', conn => {
-  //     conn.on('data', message => {
-  //         Action.displayMsg(message, "single-guest-msg");
-  //     });
-  // });
-  // peer.on('disconnected', () => {
-  //     $.get('/activity', { login: getCookie('login') });
-  // });
-  // peer.on('call', call => {
-  //     if (!Action.isVideoOn()) {
-  //         var acceptsCall = confirm("Videocall incoming, do you want to accept it ?");
-  //     }
-  //     if (acceptsCall) {
-  //         Action.handleVideo(peer);
-  //         call.answer(Action.localStream);
-  //         call.on('stream', stream => {
-  //             $("#guest-video")[0].srcObject = stream;
-  //         });
-  //         // Handle when the call finishes
-  //         call.on('close', function() {
-  //             alert("The videocall has finished");
-  //         });
-  //     } else {
-  //         call.answer(Action.localStream);
-  //         call.on('stream', stream => {
-  //             $("#guest-video")[0].srcObject = stream;
-  //         });
-  //         // Handle when the call finishes
-  //         call.on('close', function() {
-  //             alert("The videocall has finished");
-  //         });
-  //     }
-  // });
-
-  $(".send-btn").click(function () {
-    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["displayMsg"]({
-      sender: _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["getCookie"]('login'),
-      content: $('#send-box').val()
-    }, "single-user-msg", connector);
-    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["sendMsg"](connector);
-    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["setDefaultBoxHeight"]($('#send-box'));
-    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["clearBox"]($('#send-box'));
-    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["setRecivedBoxScrollBar"]();
-  });
-  $("#logout-btn").click(function () {
-    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["logOut"]();
+  _Animation_js__WEBPACK_IMPORTED_MODULE_1__["Animation"].setText($('#send-box'), "Write here . . .");
+  _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["handleUsers"](connector);
+  connector.onReciveMessage(_actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["handleRecivedMessage"]);
+  connector.onReciveStream(_actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["handleRecivedStream"]);
+  $("#send-btn").click(function () {
+    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["handleSendButtonClick"](connector);
   });
   $('#call-btn').click(function () {
-    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["handleVideo"](connector);
+    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["handleCallButtonClick"](connector);
   });
-  $('#send-box').keydown(function (e) {
-    if (_actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["isEnterPressed"](e)) {
-      e.preventDefault();
-      _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["displayMsg"]({
-        sender: _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["getCookie"]('login'),
-        content: $('#send-box').val()
-      }, "single-user-msg", connector);
-      _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["sendMsg"](connector);
-      _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["setDefaultBoxHeight"]($(this));
-      _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["clearBox"]($(this));
-      _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["setRecivedBoxScrollBar"]();
-    } else {
-      _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["autoSize"]($(this)[0]);
-    }
+  $('#send-box').keydown(function (event) {
+    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["handleSendBoxEnterPressd"](event, connector);
   });
   $(document).mousemove(function (event) {
-    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["handleMenu"](event);
+    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["handleDisplayMenu"](event);
   });
-  $('.search-user-box').on('input', function () {
-    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["searchUser"]();
-  });
+  $('.search-user-box').on('input', _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["handleSearchUser"]);
+  $("#logout-btn").click(_actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["handleLogoutButtonClick"]);
 }, false); // const ws = new WebSocket('wss://192.168.1.13:8081');
 // // odbieranie danych z Servera:
 // ws.onmessage = function(msg) {
@@ -273,23 +215,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 var Connector =
 /*#__PURE__*/
 function () {
-  function Connector(peer) {
+  function Connector(peerID) {
     _classCallCheck(this, Connector);
 
     this.connection = null;
     this.localStream = null;
     this.call = null;
-    this.peer = new peerjs__WEBPACK_IMPORTED_MODULE_0___default.a(peer, {
-      config: {
-        'iceServers': [{
-          url: 'stun:stun1.l.google.com:19302'
-        }, {
-          url: 'turn:numb.viagenie.ca',
-          credential: 'muazkh',
-          username: 'webrtc@live.com'
-        }]
-      }
-    });
+    this.peer = new peerjs__WEBPACK_IMPORTED_MODULE_0___default.a(peerID);
   }
 
   _createClass(Connector, [{
@@ -306,10 +238,21 @@ function () {
   }, {
     key: "onReciveMessage",
     value: function onReciveMessage(callback) {
+      var _this = this;
+
       this.peer.on('connection', function (conn) {
         conn.on('data', function (message) {
-          callback(message, "single-guest-msg");
+          callback(message, "single-guest-msg", _this);
         });
+      });
+    }
+  }, {
+    key: "onReciveStream",
+    value: function onReciveStream(callback) {
+      var _this2 = this;
+
+      this.peer.on('call', function (call) {
+        callback(call, _this2);
       });
     }
   }, {
@@ -331,6 +274,11 @@ function () {
     key: "setLocalStream",
     value: function setLocalStream(stream) {
       this.localStream = stream;
+    }
+  }, {
+    key: "getLocalStream",
+    value: function getLocalStream() {
+      return this.localStream;
     }
   }, {
     key: "stopStreaming",
@@ -505,31 +453,17 @@ webpackEmptyContext.id = 12;
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "displayMsg", function() { return displayMsg; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "displayUnreadMsgIcon", function() { return displayUnreadMsgIcon; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getActiveReciveBox", function() { return getActiveReciveBox; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getConnectedGuest", function() { return getConnectedGuest; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "generateTimeStamp", function() { return generateTimeStamp; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "clearBox", function() { return clearBox; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isVideoOn", function() { return isVideoOn; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setDefaultBoxHeight", function() { return setDefaultBoxHeight; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createVideo", function() { return createVideo; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "changeCallBtnBackground", function() { return changeCallBtnBackground; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "autoSize", function() { return autoSize; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setRecivedBoxScrollBar", function() { return setRecivedBoxScrollBar; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleVideo", function() { return handleVideo; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "sendMsg", function() { return sendMsg; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setUserBoxBackgroundColor", function() { return setUserBoxBackgroundColor; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "displayUserInfo", function() { return displayUserInfo; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "displayUserReciveBox", function() { return displayUserReciveBox; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleUsers", function() { return handleUsers; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCookie", function() { return getCookie; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "logOut", function() { return logOut; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleMenu", function() { return handleMenu; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "searchUser", function() { return searchUser; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isEnterPressed", function() { return isEnterPressed; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleUsers", function() { return handleUsers; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleRecivedMessage", function() { return handleRecivedMessage; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleRecivedStream", function() { return handleRecivedStream; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleSendButtonClick", function() { return handleSendButtonClick; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleSendBoxEnterPressd", function() { return handleSendBoxEnterPressd; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleCallButtonClick", function() { return handleCallButtonClick; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleLogoutButtonClick", function() { return handleLogoutButtonClick; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleDisplayMenu", function() { return handleDisplayMenu; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleSearchUser", function() { return handleSearchUser; });
 var displayMsg = function displayMsg(message, mode, connector) {
-  //peer
   if (message.content !== "") {
     var singleMsgBox = $("<div class='" + mode + "'></div>").text(message.content);
     var timeStamp = $("<div class=time-stamp></div>").text(generateTimeStamp());
@@ -553,6 +487,7 @@ var displayMsg = function displayMsg(message, mode, connector) {
     }
   }
 };
+
 var displayUnreadMsgIcon = function displayUnreadMsgIcon(sender) {
   if (getActiveReciveBox().attr('id').includes(sender) === false) {
     if ($('#unread-msg-' + sender).css('visibility') === 'hidden') {
@@ -560,6 +495,7 @@ var displayUnreadMsgIcon = function displayUnreadMsgIcon(sender) {
     }
   }
 };
+
 var getActiveReciveBox = function getActiveReciveBox() {
   var result = null;
   $('.msg-box').find('*').map(function () {
@@ -570,22 +506,28 @@ var getActiveReciveBox = function getActiveReciveBox() {
   });
   return result;
 };
+
 var getConnectedGuest = function getConnectedGuest() {
   return getActiveReciveBox().attr('id').split('-')[2];
 };
+
 var generateTimeStamp = function generateTimeStamp() {
   var now = new Date();
   return now.toLocaleTimeString();
 };
+
 var clearBox = function clearBox(el) {
   el.val('');
 };
+
 var isVideoOn = function isVideoOn() {
   return $("#video-box").css("display") === "flex";
 };
+
 var setDefaultBoxHeight = function setDefaultBoxHeight(el) {
   el.css('height', 'auto');
 };
+
 var createVideo = function createVideo() {
   var userVideo = $('<video />', {
     id: 'user-video',
@@ -622,6 +564,7 @@ var changeCallBtnBackground = function changeCallBtnBackground() {
   $('#call-btn').toggleClass('call-inactive');
   $('.fa-phone').toggleClass('fa-phone-slash');
 };
+
 var autoSize = function autoSize(el) {
   if (!isVideoOn()) {
     setTimeout(function () {
@@ -630,6 +573,7 @@ var autoSize = function autoSize(el) {
     }, 0);
   }
 };
+
 var setRecivedBoxScrollBar = function setRecivedBoxScrollBar() {
   getActiveReciveBox().scrollTop(getActiveReciveBox()[0].scrollHeight);
 };
@@ -674,6 +618,7 @@ var handleVideo = function handleVideo(connector) {
     alert('First select guest');
   }
 };
+
 var sendMsg = function sendMsg(connector) {
   if (connector.isConnectionCreated()) {
     var message = {
@@ -688,8 +633,6 @@ var connect = function connect(guestLogin, connector) {
   $.get('/getUserPeer', {
     login: guestLogin
   }, function (guestPeer, status) {
-    // connection = peer.connect(guestPeer);
-    // connection.on('open', () => {});
     connector.createConnectionTo(guestPeer);
   });
 };
@@ -698,6 +641,7 @@ var setUserBoxBackgroundColor = function setUserBoxBackgroundColor(userBox) {
   $('.single-user-box').css('background-color', '');
   userBox.css('background-color', 'rgba(9, 64, 109, 0.486)');
 };
+
 var displayUserInfo = function displayUserInfo(user) {
   $.get('/getUserInfo', {
     login: user.login
@@ -720,9 +664,40 @@ var displayUserInfo = function displayUserInfo(user) {
     }
   });
 };
+
 var displayUserReciveBox = function displayUserReciveBox(user) {
   $('.recived-box').css('display', 'none');
   $('#recived-box-' + user.login).css('display', 'block');
+};
+
+var logOut = function logOut() {
+  $.get('/logout', function (data, status) {
+    window.location.replace(data.url);
+  });
+};
+
+var isEnterPressed = function isEnterPressed(e) {
+  var asciiEnter = 13;
+  return e.keyCode === asciiEnter;
+};
+
+var getCookie = function getCookie(key) {
+  var cookies = document.cookie.replace(/\s+/g, '').split(';');
+
+  if (cookies.length === 0) {
+    console.log("No cookies available");
+    return;
+  }
+
+  var cookieObj = {};
+
+  for (var i = 0; i < cookies.length; i++) {
+    var _key = cookies[i].substring(0, cookies[i].indexOf('='));
+
+    cookieObj[_key] = cookies[i].substring(cookies[i].indexOf('=') + 1, cookies[i].length);
+  }
+
+  return cookieObj[key];
 };
 var handleUsers = function handleUsers(connector) {
   $.get('/getUsers', function (users, status) {
@@ -749,30 +724,68 @@ var handleUsers = function handleUsers(connector) {
     });
   });
 };
-var getCookie = function getCookie(key) {
-  var cookies = document.cookie.replace(/\s+/g, '').split(';');
+var handleRecivedMessage = function handleRecivedMessage(message, mode, connector) {
+  displayMsg(message, mode, connector);
+  setRecivedBoxScrollBar();
+};
+var handleRecivedStream = function handleRecivedStream(call, connector) {
+  var acceptCall = null;
 
-  if (cookies.length === 0) {
-    console.log("No cookies available");
-    return;
+  if (isVideoOn()) {
+    acceptCall = confirm("Videocall incoming, do you want to accept it ?");
   }
 
-  var cookieObj = {};
-
-  for (var i = 0; i < cookies.length; i++) {
-    var _key = cookies[i].substring(0, cookies[i].indexOf('='));
-
-    cookieObj[_key] = cookies[i].substring(cookies[i].indexOf('=') + 1, cookies[i].length);
+  if (acceptCall === true) {
+    handleVideo(connector);
+    call.answer(connect.getLocalStream());
+    call.on('stream', function (stream) {
+      $("#guest-video")[0].srcObject = stream;
+    });
+    call.on('close', function () {
+      alert("The videocall has finished");
+    });
+  } else {// call.answer(Action.localStream);
+    // call.on('stream', stream => {
+    //     $("#guest-video")[0].srcObject = stream;
+    // });
+    // // Handle when the call finishes
+    // call.on('close', function() {
+    //     alert("The videocall has finished");
+    // });
   }
-
-  return cookieObj[key];
 };
-var logOut = function logOut() {
-  $.get('/logout', function (data, status) {
-    window.location.replace(data.url);
-  });
+var handleSendButtonClick = function handleSendButtonClick(connector) {
+  displayMsg({
+    sender: getCookie('login'),
+    content: $('#send-box').val()
+  }, "single-user-msg", connector);
+  sendMsg(connector);
+  setDefaultBoxHeight($('#send-box'));
+  clearBox($('#send-box'));
+  setRecivedBoxScrollBar();
 };
-var handleMenu = function handleMenu(event) {
+var handleSendBoxEnterPressd = function handleSendBoxEnterPressd(event, connector) {
+  if (isEnterPressed(event)) {
+    event.preventDefault();
+    displayMsg({
+      sender: getCookie('login'),
+      content: $('#send-box').val()
+    }, "single-user-msg", connector);
+    sendMsg(connector);
+    setDefaultBoxHeight($('#send-box'));
+    clearBox($('#send-box'));
+    setRecivedBoxScrollBar();
+  } else {
+    autoSize($('#send-box')[0]);
+  }
+};
+var handleCallButtonClick = function handleCallButtonClick(connector) {
+  handleVideo(connector);
+};
+var handleLogoutButtonClick = function handleLogoutButtonClick() {
+  logOut();
+};
+var handleDisplayMenu = function handleDisplayMenu(event) {
   $('#menu-btn').click(function () {
     $('#menu-btn').css('display', 'none');
     $('.menu').css('display', 'block');
@@ -783,7 +796,7 @@ var handleMenu = function handleMenu(event) {
     $('#menu-btn').css('display', 'block');
   }
 };
-var searchUser = function searchUser() {
+var handleSearchUser = function handleSearchUser() {
   $('.users-list').find('*').map(function () {
     if ($(this).text().includes($('.search-user-box').val())) {
       $(this).css('display', 'block');
@@ -791,10 +804,6 @@ var searchUser = function searchUser() {
       $(this).css('display', 'none');
     }
   });
-};
-var isEnterPressed = function isEnterPressed(e) {
-  var asciiEnter = 13;
-  return e.keyCode === asciiEnter;
 };
 
 /***/ })

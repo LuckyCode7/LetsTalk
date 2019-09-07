@@ -1,4 +1,4 @@
-export const displayMsg = (message, mode, connector) => { //peer
+const displayMsg = (message, mode, connector) => {
     if (message.content !== "") {
         const singleMsgBox = $("<div class='" + mode + "'></div>").text(message.content);
         const timeStamp = $("<div class=time-stamp></div>").text(generateTimeStamp());
@@ -28,7 +28,7 @@ export const displayMsg = (message, mode, connector) => { //peer
     }
 }
 
-export const displayUnreadMsgIcon = (sender) => {
+const displayUnreadMsgIcon = (sender) => {
     if (getActiveReciveBox().attr('id').includes(sender) === false) {
         if ($('#unread-msg-' + sender).css('visibility') === 'hidden') {
             $('#unread-msg-' + sender).css('visibility', 'visible');
@@ -36,7 +36,7 @@ export const displayUnreadMsgIcon = (sender) => {
     }
 }
 
-export const getActiveReciveBox = () => {
+const getActiveReciveBox = () => {
     let result = null;
 
     $('.msg-box').find('*').map(function() {
@@ -49,29 +49,29 @@ export const getActiveReciveBox = () => {
     return result;
 }
 
-export const getConnectedGuest = () => {
+const getConnectedGuest = () => {
     return getActiveReciveBox().attr('id').split('-')[2];
 }
 
-export const generateTimeStamp = () => {
+const generateTimeStamp = () => {
     const now = new Date();
 
     return now.toLocaleTimeString();
 }
 
-export const clearBox = el => {
+const clearBox = el => {
     el.val('');
 }
 
-export const isVideoOn = () => {
+const isVideoOn = () => {
     return ($("#video-box").css("display") === "flex");
 }
 
-export const setDefaultBoxHeight = (el) => {
+const setDefaultBoxHeight = (el) => {
     el.css('height', 'auto');
 }
 
-export const createVideo = () => {
+const createVideo = () => {
     const userVideo = $('<video />', {
         id: 'user-video',
         autoplay: true
@@ -103,12 +103,12 @@ const removeVideo = () => {
     $("#video-box").css('display', 'none').fadeOut("slow");
 }
 
-export const changeCallBtnBackground = () => {
+const changeCallBtnBackground = () => {
     $('#call-btn').toggleClass('call-inactive');
     $('.fa-phone').toggleClass('fa-phone-slash');
 }
 
-export const autoSize = el => {
+const autoSize = el => {
     if (!isVideoOn()) {
         setTimeout(() => {
             el.style.cssText = 'height:auto; padding:0';
@@ -117,7 +117,7 @@ export const autoSize = el => {
     }
 }
 
-export const setRecivedBoxScrollBar = () => {
+const setRecivedBoxScrollBar = () => {
     getActiveReciveBox().scrollTop(getActiveReciveBox()[0].scrollHeight);
 }
 
@@ -140,7 +140,7 @@ const captureUserCamera = (connector) => { //peer
     }
 }
 
-export const handleVideo = connector => {
+const handleVideo = connector => {
     if (!connector.isConnectionCreated()) {
         if (!isVideoOn()) {
             createVideo();
@@ -155,7 +155,7 @@ export const handleVideo = connector => {
     }
 }
 
-export const sendMsg = (connector) => {
+const sendMsg = (connector) => {
     if (connector.isConnectionCreated()) {
         const message = {
             sender: getCookie('login'),
@@ -168,19 +168,16 @@ export const sendMsg = (connector) => {
 
 const connect = (guestLogin, connector) => {
     $.get('/getUserPeer', { login: guestLogin }, function(guestPeer, status) {
-        // connection = peer.connect(guestPeer);
-        // connection.on('open', () => {});
-
         connector.createConnectionTo(guestPeer);
     });
 }
 
-export const setUserBoxBackgroundColor = (userBox) => {
+const setUserBoxBackgroundColor = (userBox) => {
     $('.single-user-box').css('background-color', '');
     userBox.css('background-color', 'rgba(9, 64, 109, 0.486)');
 }
 
-export const displayUserInfo = user => {
+const displayUserInfo = user => {
     $.get('/getUserInfo', { login: user.login }, function(user, status) {
         $('#conn-title').text(user.login);
         $('#conn-status').text('Status: ' + user.status);
@@ -200,9 +197,40 @@ export const displayUserInfo = user => {
     });
 }
 
-export const displayUserReciveBox = user => {
+const displayUserReciveBox = user => {
     $('.recived-box').css('display', 'none');
     $('#recived-box-' + user.login).css('display', 'block');
+}
+
+const logOut = () => {
+    $.get('/logout', (data, status) => {
+        window.location.replace(data.url);
+    });
+}
+
+const isEnterPressed = (e) => {
+    const asciiEnter = 13;
+    return e.keyCode === asciiEnter;
+}
+
+export const getCookie = (key) => {
+    let cookies = document.cookie.replace(/\s+/g, '').split(';');
+
+    if (cookies.length === 0) {
+        console.log("No cookies available");
+
+        return;
+    }
+
+    let cookieObj = {};
+
+    for (let i = 0; i < cookies.length; i++) {
+        const key = cookies[i].substring(0, cookies[i].indexOf('='));
+
+        cookieObj[key] = cookies[i].substring(cookies[i].indexOf('=') + 1, cookies[i].length);
+    }
+
+    return cookieObj[key];
 }
 
 export const handleUsers = (connector) => {
@@ -245,33 +273,77 @@ export const handleUsers = (connector) => {
     });
 }
 
-export const getCookie = (key) => {
-    let cookies = document.cookie.replace(/\s+/g, '').split(';');
-
-    if (cookies.length === 0) {
-        console.log("No cookies available");
-
-        return;
-    }
-
-    let cookieObj = {};
-
-    for (let i = 0; i < cookies.length; i++) {
-        const key = cookies[i].substring(0, cookies[i].indexOf('='));
-
-        cookieObj[key] = cookies[i].substring(cookies[i].indexOf('=') + 1, cookies[i].length);
-    }
-
-    return cookieObj[key];
+export const handleRecivedMessage = (message, mode, connector) => {
+    displayMsg(message, mode, connector);
+    setRecivedBoxScrollBar();
 }
 
-export const logOut = () => {
-    $.get('/logout', (data, status) => {
-        window.location.replace(data.url);
-    });
+export const handleRecivedStream = (call, connector) => {
+    let acceptCall = null;
+
+    if (isVideoOn()) {
+        acceptCall = confirm("Videocall incoming, do you want to accept it ?");
+    }
+
+    if (acceptCall === true) {
+
+        handleVideo(connector);
+
+        call.answer(connect.getLocalStream());
+
+        call.on('stream', stream => {
+            $("#guest-video")[0].srcObject = stream;
+        });
+
+        call.on('close', () => {
+            alert("The videocall has finished");
+        });
+
+    } else {
+        // call.answer(Action.localStream);
+
+        // call.on('stream', stream => {
+        //     $("#guest-video")[0].srcObject = stream;
+
+        // });
+
+        // // Handle when the call finishes
+        // call.on('close', function() {
+        //     alert("The videocall has finished");
+        // });
+    }
 }
 
-export const handleMenu = (event) => {
+export const handleSendButtonClick = (connector) => {
+    displayMsg({ sender: getCookie('login'), content: $('#send-box').val() }, "single-user-msg", connector);
+    sendMsg(connector);
+    setDefaultBoxHeight($('#send-box'));
+    clearBox($('#send-box'));
+    setRecivedBoxScrollBar();
+}
+
+export const handleSendBoxEnterPressd = (event, connector) => {
+    if (isEnterPressed(event)) {
+        event.preventDefault();
+        displayMsg({ sender: getCookie('login'), content: $('#send-box').val() }, "single-user-msg", connector);
+        sendMsg(connector);
+        setDefaultBoxHeight($('#send-box'));
+        clearBox($('#send-box'));
+        setRecivedBoxScrollBar();
+    } else {
+        autoSize($('#send-box')[0]);
+    }
+}
+
+export const handleCallButtonClick = (connector) => {
+    handleVideo(connector);
+}
+
+export const handleLogoutButtonClick = () => {
+    logOut();
+}
+
+export const handleDisplayMenu = (event) => {
     $('#menu-btn').click(() => {
         $('#menu-btn').css('display', 'none');
         $('.menu').css('display', 'block');
@@ -283,7 +355,7 @@ export const handleMenu = (event) => {
     }
 }
 
-export const searchUser = () => {
+export const handleSearchUser = () => {
     $('.users-list').find('*').map(function() {
         if ($(this).text().includes($('.search-user-box').val())) {
             $(this).css('display', 'block');
@@ -291,9 +363,4 @@ export const searchUser = () => {
             $(this).css('display', 'none');
         }
     });
-}
-
-export const isEnterPressed = (e) => {
-    const asciiEnter = 13;
-    return e.keyCode === asciiEnter;
 }

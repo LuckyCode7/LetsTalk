@@ -1,22 +1,11 @@
 import Peer from 'peerjs';
 
 export class Connector {
-    constructor(peer) {
+    constructor(peerID) {
         this.connection = null;
         this.localStream = null;
         this.call = null;
-        this.peer = new Peer(peer, {
-            config: {
-                'iceServers': [
-                    { url: 'stun:stun1.l.google.com:19302' },
-                    {
-                        url: 'turn:numb.viagenie.ca',
-                        credential: 'muazkh',
-                        username: 'webrtc@live.com'
-                    }
-                ]
-            }
-        });
+        this.peer = new Peer(peerID);
     }
 
     createConnectionTo(guestPeer) {
@@ -31,8 +20,14 @@ export class Connector {
     onReciveMessage(callback) {
         this.peer.on('connection', conn => {
             conn.on('data', message => {
-                callback(message, "single-guest-msg");
+                callback(message, "single-guest-msg", this);
             });
+        });
+    }
+
+    onReciveStream(callback) {
+        this.peer.on('call', call => {
+            callback(call, this);
         });
     }
 
@@ -50,6 +45,10 @@ export class Connector {
 
     setLocalStream(stream) {
         this.localStream = stream;
+    }
+
+    getLocalStream() {
+        return this.localStream;
     }
 
     stopStreaming() {

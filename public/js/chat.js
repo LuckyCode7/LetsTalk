@@ -4,103 +4,35 @@ import * as Action from './actionDOM.js';
 
 $(document).ready((event) => {
 
-    Animation.setText($('#send-box'), "Write here . . .");
-
     const connector = new Connector(Action.getCookie('peer'));
+
+    Animation.setText($('#send-box'), "Write here . . .");
 
     Action.handleUsers(connector);
 
-    //
-    // User recived msg from guest
-    //
+    connector.onReciveMessage(Action.handleRecivedMessage);
 
-    connector.onReciveMessage(Action.displayMsg);
+    connector.onReciveStream(Action.handleRecivedStream);
 
-    // peer.on('connection', conn => {
-    //     conn.on('data', message => {
-    //         Action.displayMsg(message, "single-guest-msg");
-    //     });
-    // });
-
-    // peer.on('disconnected', () => {
-    //     $.get('/activity', { login: getCookie('login') });
-    // });
-
-    // peer.on('call', call => {
-    //     if (!Action.isVideoOn()) {
-    //         var acceptsCall = confirm("Videocall incoming, do you want to accept it ?");
-    //     }
-
-    //     if (acceptsCall) {
-
-    //         Action.handleVideo(peer);
-
-    //         call.answer(Action.localStream);
-
-    //         call.on('stream', stream => {
-    //             $("#guest-video")[0].srcObject = stream;
-    //         });
-
-    //         // Handle when the call finishes
-    //         call.on('close', function() {
-    //             alert("The videocall has finished");
-    //         });
-    //     } else {
-    //         call.answer(Action.localStream);
-
-    //         call.on('stream', stream => {
-    //             $("#guest-video")[0].srcObject = stream;
-
-    //         });
-
-    //         // Handle when the call finishes
-    //         call.on('close', function() {
-    //             alert("The videocall has finished");
-    //         });
-    //     }
-    // });
-
-    $(".send-btn").click(() => {
-        Action.displayMsg({ sender: Action.getCookie('login'), content: $('#send-box').val() }, "single-user-msg", connector);
-        Action.sendMsg(connector);
-        Action.setDefaultBoxHeight($('#send-box'));
-        Action.clearBox($('#send-box'));
-        Action.setRecivedBoxScrollBar();
-    });
-
-    $("#logout-btn").click(() => {
-        Action.logOut();
+    $("#send-btn").click(() => {
+        Action.handleSendButtonClick(connector);
     });
 
     $('#call-btn').click(() => {
-        Action.handleVideo(connector);
+        Action.handleCallButtonClick(connector);
     });
 
-    $('#send-box').keydown(function(e) {
-        if (Action.isEnterPressed(e)) {
-            e.preventDefault();
-            Action.displayMsg({ sender: Action.getCookie('login'), content: $('#send-box').val() }, "single-user-msg", connector);
-            Action.sendMsg(connector);
-            Action.setDefaultBoxHeight($(this));
-            Action.clearBox($(this));
-            Action.setRecivedBoxScrollBar();
-        } else {
-            Action.autoSize($(this)[0]);
-        }
+    $('#send-box').keydown((event) => {
+        Action.handleSendBoxEnterPressd(event, connector);
     });
 
     $(document).mousemove((event) => {
-        Action.handleMenu(event);
+        Action.handleDisplayMenu(event);
     });
 
-    $('.search-user-box').on('input', () => {
-        Action.searchUser();
-    });
+    $('.search-user-box').on('input', Action.handleSearchUser);
 
-
-
-
-
+    $("#logout-btn").click(Action.handleLogoutButtonClick);
 
 }, false);
 
