@@ -36,33 +36,29 @@
 
 .send-btn {
     width: 9%;
+    height: auto;
     background-color: rgba(14, 103, 175, 0.657);
-    color: black;
     border: 0px;
     border-radius: 4px;
-    // font-size: 0.7vw;
-    height: 35px;
     padding: 10px;
     box-sizing: border-box;
     cursor: pointer;
-    margin-top: 2%;
-    margin-left: 2%;
+    //  margin-left: 2%;
     float: left;
+    font-size: 1vw;
 }
 
 .call-btn {
     width: 9%;
-    height: 35px;
+    height: auto;
     border: 0px;
     border-radius: 4px;
-    //  font-size: 0.7vw;
     padding: 10px;
     box-sizing: border-box;
     cursor: pointer;
-    margin-top: 2%;
-    margin-right: 2%;
-    //  height: 1.7vh;
+    // margin-right: 2%;
     float: left;
+    font-size: 1vw;
 }
 
 .call-active {
@@ -77,7 +73,7 @@
     background-color: rgba(14, 86, 144, 0.486);
 }
 
-.invite-btn:hover {
+.send-btn:hover {
     background-color: rgba(15, 75, 124, 0.657);
 }
 

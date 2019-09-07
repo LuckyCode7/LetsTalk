@@ -411,45 +411,80 @@ template {
 
 .users-box {
   font-family: 'Montserrat', sans-serif;
+  width: 19%;
+  height: 42vh;
+  margin: 2%; }
+
+.search-user-box {
+  width: 86%;
+  height: auto;
+  border: 0px;
+  outline: none;
+  resize: none;
+  font-size: 1.3vw;
+  padding: 2%;
+  float: left;
+  background-color: transparent;
+  margin-bottom: 3%;
+  text-align: center;
+  border-bottom: 2px solid black; }
+
+.search-icon {
+  padding: 2%;
+  width: 6%;
+  height: auto;
+  font-size: 1.3vw;
+  float: right;
+  border-bottom: 2px solid black; }
+
+.users-list {
   display: flex;
   align-items: center;
   flex-direction: column;
-  width: 20%;
-  height: 42vh;
-  background-color: rgba(0, 0, 0, 0.356);
+  width: 100%;
   margin-top: 2%;
+  height: calc(37vh - 2%);
+  background-color: rgba(0, 0, 0, 0.356);
   border-radius: 5px;
   overflow-y: auto; }
 
-.users-box > *:hover {
-  background-color: rgba(9, 64, 109, 0.486);
+.users-list > *:hover {
+  background-color: rgba(9, 64, 109, 0.308);
   cursor: pointer; }
 
 .single-user-box {
-  text-align: center;
   width: 96%;
   font-size: 1.3vw;
   padding: 2%;
   margin-top: 3%; }
 
+.single-nick-box {
+  text-align: center;
+  box-sizing: border-box;
+  padding-left: 15%;
+  width: 90%;
+  float: left; }
+
+.unread-msg {
+  text-align: center;
+  float: left; }
+
 .data-box {
   display: flex;
   align-items: center;
   flex-direction: column;
-  width: 20%;
-  height: 50vh;
+  width: 21%;
+  height: 42vh;
   margin-top: 2%; }
 
-.management-panel {
-  width: 100%; }
-
 .msg-box {
-  height: 50vh;
+  height: 42vh;
   width: 50%;
   display: flex;
   align-items: center;
   flex-direction: column;
-  margin-top: 2%; }
+  margin: 2%;
+  margin-top: 5%; }
 
 .recived-box {
   width: 100%;
@@ -459,15 +494,20 @@ template {
   overflow: auto;
   border-radius: 5px; }
 
+.management-panel {
+  width: 100%;
+  margin-top: 2%; }
+
 .send-box {
-  margin-top: 2%;
-  width: 74%;
-  height: 16px;
+  width: calc(82% - (1% + 1% + 10px + 10px));
+  margin-right: 1%;
+  margin-left: 1%;
+  height: auto;
   max-height: 96px;
   border: 0px;
   background-color: rgba(0, 0, 0, 0.356);
   outline: none;
-  overflow-y: auto;
+  font-size: 1vw;
   resize: none;
   font-family: 'Montserrat', sans-serif;
   display: block;
@@ -482,7 +522,7 @@ template {
   margin-left: 2%;
   max-width: 70%;
   margin-top: 1%;
-  padding: 10px;
+  padding: 8px;
   word-wrap: break-word;
   font-size: 1vw;
   display: inline-block;
@@ -495,7 +535,7 @@ template {
   margin-right: 2%;
   max-width: 70%;
   margin-top: 1%;
-  padding: 10px;
+  padding: 8px;
   word-wrap: break-word;
   font-size: 1vw;
   display: inline-block;
@@ -504,15 +544,30 @@ template {
   border-radius: 6px;
   background-color: rgba(226, 223, 47, 0.657); }
 
+.time-stamp {
+  margin-top: 5px;
+  font-size: 0.7vw;
+  display: block;
+  word-wrap: break-word;
+  color: rgba(0, 0, 0, 0.938); }
+
+.connection-title {
+  height: auto;
+  padding: 2%;
+  margin-bottom: 3%;
+  font-size: 1.3vw;
+  width: 100%;
+  text-align: center;
+  border-bottom: 2px solid black; }
+
 .connection-info {
+  height: auto;
   padding: 2%;
   margin-bottom: 1%;
   font-size: 1.3vw;
   width: 100%;
-  text-align: center; }
-
-.connection-info:hover {
-  border-bottom: 2px solid rgba(9, 64, 109, 0.486); }
+  text-align: center;
+  display: none; }
 
 .main-panel {
   width: 96%;
@@ -526,6 +581,14 @@ template {
   display: none;
   background-color: rgba(9, 64, 109, 0.486);
   border-left: 1px solid black; }
+
+#menu-btn {
+  font-size: 1.8vw;
+  cursor: pointer;
+  padding: 0.8%;
+  position: absolute;
+  top: 0px;
+  right: 0px; }
 
 .menu-icon {
   font-size: 1.8vw;
@@ -572,29 +635,26 @@ template {
 
 .send-btn {
   width: 9%;
+  height: auto;
   background-color: rgba(14, 103, 175, 0.657);
-  color: black;
   border: 0px;
   border-radius: 4px;
-  height: 35px;
   padding: 10px;
   box-sizing: border-box;
   cursor: pointer;
-  margin-top: 2%;
-  margin-left: 2%;
-  float: left; }
+  float: left;
+  font-size: 1vw; }
 
 .call-btn {
   width: 9%;
-  height: 35px;
+  height: auto;
   border: 0px;
   border-radius: 4px;
   padding: 10px;
   box-sizing: border-box;
   cursor: pointer;
-  margin-top: 2%;
-  margin-right: 2%;
-  float: left; }
+  float: left;
+  font-size: 1vw; }
 
 .call-active {
   background-color: rgba(26, 182, 34, 0.657); }
@@ -605,7 +665,7 @@ template {
 .log-btn:hover {
   background-color: rgba(14, 86, 144, 0.486); }
 
-.invite-btn:hover {
+.send-btn:hover {
   background-color: rgba(15, 75, 124, 0.657); }
 
 .call-active:hover {
@@ -671,10 +731,10 @@ template {
   background-color: transparent; }
 
 ::-webkit-scrollbar {
-  width: 5px; }
+  width: 3px; }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(9, 64, 109, 0.486);
+  background-color: rgba(14, 103, 175, 0.657);
   cursor: pointer; }
 
 /*# sourceMappingURL=style.css.map*/

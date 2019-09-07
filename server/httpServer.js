@@ -15,15 +15,15 @@ const configDB = {
     port: 3306
 };
 
-const { DB } = require('../public/MySQL/db.js');
+const { DB } = require(path.join(__dirname, '../public/MySQL', 'db.js'));
 
 const app = express();
 
 const httpPort = 8080;
-const httpsPort = 8081; //8443;
+const httpsPort = 8081;
 
-const privKey = fs.readFileSync('./sslcert/server.key', 'utf-8');
-const certificate = fs.readFileSync('./sslcert/server.cert', 'utf-8');
+const privKey = fs.readFileSync(path.join(__dirname, '../sslcert', 'server.key'), 'utf-8');
+const certificate = fs.readFileSync(path.join(__dirname, '../sslcert', 'server.cert'), 'utf-8');
 
 const credentials = { key: privKey, cert: certificate };
 
@@ -77,6 +77,16 @@ app.use(express.static('dist'));
 
 app.use(express.urlencoded({ extended: true }));
 
+app.use((req, res, next) => {
+    if (req.secure) {
+        next();
+    } else {
+        const url = req.headers.host + req.url;
+
+        res.redirect('https://' + url.split(':')[0] + ':' + httpsPort);
+    }
+});
+
 app.get('/', (req, res) => {
     res.redirect('/login');
 });
@@ -125,7 +135,7 @@ app.get('/getUserInfo', (req, res) => {
 
 app.get('/getUserPeer', (req, res) => {
     const db = new DB(configDB);
-    db.getPeerIdAsync(req.cookies.login).then(peerID => {
+    db.getPeerIdAsync(req.query.login).then(peerID => {
         res.send(peerID);
     });
 });

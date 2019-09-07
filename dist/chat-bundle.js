@@ -166,173 +166,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var peerjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(10);
 /* harmony import */ var peerjs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(peerjs__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _Animation_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
+/* harmony import */ var _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(12);
 
-
-
-var shortid = __webpack_require__(12);
-
-var connection;
-var windowStream;
-var call;
-var enterASCII = 13;
-
-var displayMsg = function displayMsg(content, look) {
-  if (content !== "") {
-    var msg = $("<div class='" + look + "'></div>").text(content); //const msg = $("<div class='" + look + "'>" + connect + "</div>");
-    //msg.append("\ncoscoscos");
-
-    $('#recived-box').append(msg);
-  }
-};
-
-var clearBox = function clearBox(el) {
-  el.val('');
-};
-
-var isVideoOn = function isVideoOn() {
-  return $("#video-box").css("display") === "flex";
-};
-
-var setDefaultBoxHeight = function setDefaultBoxHeight(el, height) {
-  el.css('height', height + 'px');
-};
-
-var toogleVideoBox = function toogleVideoBox() {
-  if (!isVideoOn()) {
-    $("#video-box").fadeIn("slow").css('display', 'flex');
-  } else {
-    $("#video-box").css('display', 'none').fadeOut("slow");
-  }
-};
-
-var changeBackground = function changeBackground(el) {
-  el.toggleClass('call-inactive');
-  $('.fa-phone').toggleClass('fa-phone-slash');
-};
-
-var autoSize = function autoSize(el) {
-  if (!isVideoOn()) {
-    setTimeout(function () {
-      el.style.cssText = 'height:auto; padding:0';
-      el.style.cssText = 'height:' + el.scrollHeight + 'px';
-    }, 0);
-  } else {}
-};
-
-var setRecivedBoxScrollBar = function setRecivedBoxScrollBar() {
-  $('.recived-box').scrollTop($('.recived-box')[0].scrollHeight);
-};
-
-var handleVideo = function handleVideo(peer) {
-  if (isVideoOn()) {
-    console.log("Video START");
-
-    if (navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true
-      }).then(function (stream) {
-        $("#user-video")[0].srcObject = new MediaStream(stream.getVideoTracks());
-        $("#user-video")[0].play();
-        windowStream = stream;
-      }).then(function () {
-        call = peer.call($("#guest-id").val(), windowStream);
-      })["catch"](function (error) {
-        console.log(error);
-      });
-    } else {
-      console.log("Can't use getUserMedia");
-    }
-  } else {
-    console.log("Video STOP");
-    connection.send("VIDEO STOPPED");
-    $("#user-video")[0].srcObject.getTracks().forEach(function (track) {
-      return track.stop();
-    });
-    $("#guest-video")[0].srcObject.getTracks().forEach(function (track) {
-      return track.stop();
-    });
-    call.close(); // windowStream = null;
-  }
-};
-
-var sendMsg = function sendMsg() {
-  if (connection) {
-    connection.send($('#send-box').val());
-  }
-};
-
-var connect = function connect(peer) {
-  $.get('/getUserPeer', function (data, status) {
-    connection = peer.connect(data); //$("#guest-id").val("");
-
-    connection.on('open', function () {//  connection.send('User with id ' + $("#user-id").val() + 'is online');
-    });
-  });
-};
-
-var handleUsers = function handleUsers(look, peer) {
-  $.get('/getUsers', function (users, status) {
-    users.forEach(function (user) {
-      if (user.login !== getCookie('login')) {
-        var userBox = $("<div class='" + look + "'></div>").text(user.login);
-        userBox.click(function () {
-          connect(user.login, peer);
-          $.get('/getUserInfo', {
-            login: user.login
-          }, function (user, status) {
-            _Animation_js__WEBPACK_IMPORTED_MODULE_1__["Animation"].displayTextAsync('Connection data', $('#conn-title'), 80);
-            _Animation_js__WEBPACK_IMPORTED_MODULE_1__["Animation"].displayTextAsync('Login: ' + user.login, $('#conn-login'), 90);
-            _Animation_js__WEBPACK_IMPORTED_MODULE_1__["Animation"].displayTextAsync('Status: ' + user.status, $('#conn-status'), 90);
-            _Animation_js__WEBPACK_IMPORTED_MODULE_1__["Animation"].displayTextAsync('Email: ' + user.mail, $('#conn-mail'), 90);
-            _Animation_js__WEBPACK_IMPORTED_MODULE_1__["Animation"].displayTextAsync("Last login: " + user.activity, $('#conn-activity'), 90);
-          });
-        });
-        $('.users-box').append(userBox);
-      }
-    });
-  });
-};
-
-var getCookie = function getCookie(key) {
-  var cookies = document.cookie.replace(/\s+/g, '').split(';');
-
-  if (cookies.length === 0) {
-    console.log("No cookies available");
-    return;
-  }
-
-  var cookieObj = {};
-
-  for (var i = 0; i < cookies.length; i++) {
-    var _key = cookies[i].substring(0, cookies[i].indexOf('='));
-
-    cookieObj[_key] = cookies[i].substring(cookies[i].indexOf('=') + 1, cookies[i].length);
-  }
-
-  return cookieObj[key];
-};
-
-var logOut = function logOut() {
-  $.get('/logout', function (data, status) {
-    $.get('/logout', function (data, status) {
-      window.location.replace(data.url);
-    });
-  });
-};
-
-var handleMenu = function handleMenu(event) {
-  if (event.pageX > $(window).width() - 5) {
-    $('.menu').css('display', 'block');
-  } else if (event.pageX < $(window).width() - $('.menu').width()) {
-    $('.menu').css('display', 'none');
-  }
-}; ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 $(document).ready(function (event) {
   _Animation_js__WEBPACK_IMPORTED_MODULE_1__["Animation"].setText($('#send-box'), "Write here . . .");
-  var peer = new peerjs__WEBPACK_IMPORTED_MODULE_0___default.a(getCookie('peer'), {
+  var peer = new peerjs__WEBPACK_IMPORTED_MODULE_0___default.a(_actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["getCookie"]('peer'), {
     config: {
       'iceServers': [{
         url: 'stun:stun1.l.google.com:19302'
@@ -343,40 +183,39 @@ $(document).ready(function (event) {
       }]
     }
   });
-  handleUsers('single-user-box', peer);
+  _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["handleUsers"](peer);
   peer.on('open', function () {// $('#user-id').text(peer.id);
-  });
+  }); //
+  // User recived msg from guest
+  //
+
   peer.on('connection', function (conn) {
-    conn.on('data', function (data) {
-      displayMsg(data, "single-guest-msg");
+    conn.on('data', function (message) {
+      _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["displayMsg"](message, "single-guest-msg");
     });
   }); // peer.on('disconnected', () => {
   //     $.get('/activity', { login: getCookie('login') });
   // });
 
   peer.on('call', function (call) {
-    if (!isVideoOn()) {
+    if (!_actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["isVideoOn"]()) {
       var acceptsCall = confirm("Videocall incoming, do you want to accept it ?");
     }
 
     if (acceptsCall) {
-      toogleVideoBox();
-      changeBackground($('#call-btn'));
-      handleVideo(peer);
-      call.answer(windowStream);
+      _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["handleVideo"](peer);
+      call.answer(_actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["localStream"]);
       call.on('stream', function (stream) {
         $("#guest-video")[0].srcObject = stream;
-        $("#guest-video")[0].play();
       }); // Handle when the call finishes
 
       call.on('close', function () {
         alert("The videocall has finished");
       });
     } else {
-      call.answer(windowStream);
+      call.answer(_actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["localStream"]);
       call.on('stream', function (stream) {
         $("#guest-video")[0].srcObject = stream;
-        $("#guest-video")[0].play();
       }); // Handle when the call finishes
 
       call.on('close', function () {
@@ -385,38 +224,41 @@ $(document).ready(function (event) {
     }
   });
   $(".send-btn").click(function () {
-    // connection = peer.connect($("#guest-id").val());
-    //$("#guest-id").val("");
-    // connection.on('open', () => {
-    //  connection.send('User with id ' + $("#user-id").val() + 'is online');
-    displayMsg($('#send-box').val(), "single-user-msg");
-    sendMsg();
-    setDefaultBoxHeight($('#send-box'), 16);
-    clearBox($('#send-box'));
-    setRecivedBoxScrollBar();
+    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["displayMsg"]({
+      sender: _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["getCookie"]('login'),
+      content: $('#send-box').val()
+    }, "single-user-msg");
+    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["sendMsg"]();
+    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["setDefaultBoxHeight"]($('#send-box'));
+    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["clearBox"]($('#send-box'));
+    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["setRecivedBoxScrollBar"]();
   });
   $("#logout-btn").click(function () {
-    logOut();
+    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["logOut"]();
   });
   $('#call-btn').click(function () {
-    toogleVideoBox();
-    changeBackground($(this));
-    handleVideo(peer);
+    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["handleVideo"](peer);
   });
   $('#send-box').keydown(function (e) {
-    if (e.keyCode === enterASCII) {
+    if (_actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["isEnterPressed"](e)) {
       e.preventDefault();
-      displayMsg($(this).val(), "single-user-msg");
-      sendMsg();
-      setDefaultBoxHeight($(this), 16);
-      clearBox($(this));
-      setRecivedBoxScrollBar();
+      _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["displayMsg"]({
+        sender: _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["getCookie"]('login'),
+        content: $('#send-box').val()
+      }, "single-user-msg");
+      _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["sendMsg"]();
+      _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["setDefaultBoxHeight"]($(this));
+      _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["clearBox"]($(this));
+      _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["setRecivedBoxScrollBar"]();
     } else {
-      autoSize($(this)[0]);
+      _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["autoSize"]($(this)[0]);
     }
   });
   $(document).mousemove(function (event) {
-    handleMenu(event);
+    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["handleMenu"](event);
+  });
+  $('.search-user-box').on('input', function () {
+    _actionDOM_js__WEBPACK_IMPORTED_MODULE_2__["searchUser"]();
   });
 }, false); // const ws = new WebSocket('wss://192.168.1.13:8081');
 // // odbieranie danych z Servera:
@@ -582,421 +424,302 @@ webpackEmptyContext.id = 11;
 
 /***/ }),
 /* 12 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "displayMsg", function() { return displayMsg; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "displayUnreadMsgIcon", function() { return displayUnreadMsgIcon; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getActiveReciveBox", function() { return getActiveReciveBox; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getConnectedGuest", function() { return getConnectedGuest; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "generateTimeStamp", function() { return generateTimeStamp; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "clearBox", function() { return clearBox; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isVideoOn", function() { return isVideoOn; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setDefaultBoxHeight", function() { return setDefaultBoxHeight; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createVideo", function() { return createVideo; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "removeVideo", function() { return removeVideo; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "changeCallBtnBackground", function() { return changeCallBtnBackground; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "autoSize", function() { return autoSize; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setRecivedBoxScrollBar", function() { return setRecivedBoxScrollBar; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "captureUserCamera", function() { return captureUserCamera; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleVideo", function() { return handleVideo; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "sendMsg", function() { return sendMsg; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "connect", function() { return connect; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setUserBoxBackgroundColor", function() { return setUserBoxBackgroundColor; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "displayUserInfo", function() { return displayUserInfo; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "displayUserReciveBox", function() { return displayUserReciveBox; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleUsers", function() { return handleUsers; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCookie", function() { return getCookie; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "logOut", function() { return logOut; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleMenu", function() { return handleMenu; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "searchUser", function() { return searchUser; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isEnterPressed", function() { return isEnterPressed; });
+var connection = null;
+var localStream;
+var call;
+var displayMsg = function displayMsg(message, mode) {
+  if (message.content !== "") {
+    var singleMsgBox = $("<div class='" + mode + "'></div>").text(message.content);
+    var timeStamp = $("<div class=time-stamp></div>").text(generateTimeStamp());
+    singleMsgBox.append(timeStamp);
 
-module.exports = __webpack_require__(13);
-
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var alphabet = __webpack_require__(14);
-var build = __webpack_require__(16);
-var isValid = __webpack_require__(20);
-
-// if you are using cluster or multiple servers use this to make each instance
-// has a unique value for worker
-// Note: I don't know if this is automatically set when using third
-// party cluster solutions such as pm2.
-var clusterWorkerId = __webpack_require__(21) || 0;
-
-/**
- * Set the seed.
- * Highly recommended if you don't want people to try to figure out your id schema.
- * exposed as shortid.seed(int)
- * @param seed Integer value to seed the random alphabet.  ALWAYS USE THE SAME SEED or you might get overlaps.
- */
-function seed(seedValue) {
-    alphabet.seed(seedValue);
-    return module.exports;
-}
-
-/**
- * Set the cluster worker or machine id
- * exposed as shortid.worker(int)
- * @param workerId worker must be positive integer.  Number less than 16 is recommended.
- * returns shortid module so it can be chained.
- */
-function worker(workerId) {
-    clusterWorkerId = workerId;
-    return module.exports;
-}
-
-/**
- *
- * sets new characters to use in the alphabet
- * returns the shuffled alphabet
- */
-function characters(newCharacters) {
-    if (newCharacters !== undefined) {
-        alphabet.characters(newCharacters);
-    }
-
-    return alphabet.shuffled();
-}
-
-/**
- * Generate unique id
- * Returns string id
- */
-function generate() {
-  return build(clusterWorkerId);
-}
-
-// Export all other functions as properties of the generate function
-module.exports = generate;
-module.exports.generate = generate;
-module.exports.seed = seed;
-module.exports.worker = worker;
-module.exports.characters = characters;
-module.exports.isValid = isValid;
-
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var randomFromSeed = __webpack_require__(15);
-
-var ORIGINAL = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-';
-var alphabet;
-var previousSeed;
-
-var shuffled;
-
-function reset() {
-    shuffled = false;
-}
-
-function setCharacters(_alphabet_) {
-    if (!_alphabet_) {
-        if (alphabet !== ORIGINAL) {
-            alphabet = ORIGINAL;
-            reset();
+    switch (mode) {
+      case 'single-user-msg':
+        if (connection === null) {
+          alert('First select the guest');
+          return;
         }
-        return;
-    }
 
-    if (_alphabet_ === alphabet) {
-        return;
-    }
+        getActiveReciveBox().append(singleMsgBox);
+        break;
 
-    if (_alphabet_.length !== ORIGINAL.length) {
-        throw new Error('Custom alphabet for shortid must be ' + ORIGINAL.length + ' unique characters. You submitted ' + _alphabet_.length + ' characters: ' + _alphabet_);
-    }
-
-    var unique = _alphabet_.split('').filter(function(item, ind, arr){
-       return ind !== arr.lastIndexOf(item);
-    });
-
-    if (unique.length) {
-        throw new Error('Custom alphabet for shortid must be ' + ORIGINAL.length + ' unique characters. These characters were not unique: ' + unique.join(', '));
-    }
-
-    alphabet = _alphabet_;
-    reset();
-}
-
-function characters(_alphabet_) {
-    setCharacters(_alphabet_);
-    return alphabet;
-}
-
-function setSeed(seed) {
-    randomFromSeed.seed(seed);
-    if (previousSeed !== seed) {
-        reset();
-        previousSeed = seed;
-    }
-}
-
-function shuffle() {
-    if (!alphabet) {
-        setCharacters(ORIGINAL);
-    }
-
-    var sourceArray = alphabet.split('');
-    var targetArray = [];
-    var r = randomFromSeed.nextValue();
-    var characterIndex;
-
-    while (sourceArray.length > 0) {
-        r = randomFromSeed.nextValue();
-        characterIndex = Math.floor(r * sourceArray.length);
-        targetArray.push(sourceArray.splice(characterIndex, 1)[0]);
-    }
-    return targetArray.join('');
-}
-
-function getShuffled() {
-    if (shuffled) {
-        return shuffled;
-    }
-    shuffled = shuffle();
-    return shuffled;
-}
-
-/**
- * lookup shuffled letter
- * @param index
- * @returns {string}
- */
-function lookup(index) {
-    var alphabetShuffled = getShuffled();
-    return alphabetShuffled[index];
-}
-
-function get () {
-  return alphabet || ORIGINAL;
-}
-
-module.exports = {
-    get: get,
-    characters: characters,
-    seed: setSeed,
-    lookup: lookup,
-    shuffled: getShuffled
-};
-
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-// Found this seed-based random generator somewhere
-// Based on The Central Randomizer 1.3 (C) 1997 by Paul Houle (houle@msc.cornell.edu)
-
-var seed = 1;
-
-/**
- * return a random number based on a seed
- * @param seed
- * @returns {number}
- */
-function getNextValue() {
-    seed = (seed * 9301 + 49297) % 233280;
-    return seed/(233280.0);
-}
-
-function setSeed(_seed_) {
-    seed = _seed_;
-}
-
-module.exports = {
-    nextValue: getNextValue,
-    seed: setSeed
-};
-
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var generate = __webpack_require__(17);
-var alphabet = __webpack_require__(14);
-
-// Ignore all milliseconds before a certain time to reduce the size of the date entropy without sacrificing uniqueness.
-// This number should be updated every year or so to keep the generated id short.
-// To regenerate `new Date() - 0` and bump the version. Always bump the version!
-var REDUCE_TIME = 1459707606518;
-
-// don't change unless we change the algos or REDUCE_TIME
-// must be an integer and less than 16
-var version = 6;
-
-// Counter is used when shortid is called multiple times in one second.
-var counter;
-
-// Remember the last time shortid was called in case counter is needed.
-var previousSeconds;
-
-/**
- * Generate unique id
- * Returns string id
- */
-function build(clusterWorkerId) {
-    var str = '';
-
-    var seconds = Math.floor((Date.now() - REDUCE_TIME) * 0.001);
-
-    if (seconds === previousSeconds) {
-        counter++;
-    } else {
-        counter = 0;
-        previousSeconds = seconds;
-    }
-
-    str = str + generate(version);
-    str = str + generate(clusterWorkerId);
-    if (counter > 0) {
-        str = str + generate(counter);
-    }
-    str = str + generate(seconds);
-    return str;
-}
-
-module.exports = build;
-
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var alphabet = __webpack_require__(14);
-var random = __webpack_require__(18);
-var format = __webpack_require__(19);
-
-function generate(number) {
-    var loopCounter = 0;
-    var done;
-
-    var str = '';
-
-    while (!done) {
-        str = str + format(random, alphabet.get(), 1);
-        done = number < (Math.pow(16, loopCounter + 1 ) );
-        loopCounter++;
-    }
-    return str;
-}
-
-module.exports = generate;
-
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var crypto = typeof window === 'object' && (window.crypto || window.msCrypto); // IE 11 uses window.msCrypto
-
-var randomByte;
-
-if (!crypto || !crypto.getRandomValues) {
-    randomByte = function(size) {
-        var bytes = [];
-        for (var i = 0; i < size; i++) {
-            bytes.push(Math.floor(Math.random() * 256));
-        }
-        return bytes;
-    };
-} else {
-    randomByte = function(size) {
-        return crypto.getRandomValues(new Uint8Array(size));
-    };
-}
-
-module.exports = randomByte;
-
-
-/***/ }),
-/* 19 */
-/***/ (function(module, exports) {
-
-/**
- * Secure random string generator with custom alphabet.
- *
- * Alphabet must contain 256 symbols or less. Otherwise, the generator
- * will not be secure.
- *
- * @param {generator} random The random bytes generator.
- * @param {string} alphabet Symbols to be used in new random string.
- * @param {size} size The number of symbols in new random string.
- *
- * @return {string} Random string.
- *
- * @example
- * const format = require('nanoid/format')
- *
- * function random (size) {
- *   const result = []
- *   for (let i = 0; i < size; i++) {
- *     result.push(randomByte())
- *   }
- *   return result
- * }
- *
- * format(random, "abcdef", 5) //=> "fbaef"
- *
- * @name format
- * @function
- */
-module.exports = function (random, alphabet, size) {
-  var mask = (2 << Math.log(alphabet.length - 1) / Math.LN2) - 1
-  var step = Math.ceil(1.6 * mask * size / alphabet.length)
-  size = +size
-
-  var id = ''
-  while (true) {
-    var bytes = random(step)
-    for (var i = 0; i < step; i++) {
-      var byte = bytes[i] & mask
-      if (alphabet[byte]) {
-        id += alphabet[byte]
-        if (id.length === size) return id
-      }
+      case 'single-guest-msg':
+        $('#recived-box-' + message.sender).append(singleMsgBox);
+        displayUnreadMsgIcon(message.sender);
+        displayUnreadMsgIcon();
+        break;
     }
   }
-}
+};
+var displayUnreadMsgIcon = function displayUnreadMsgIcon(sender) {
+  if (getActiveReciveBox().attr('id').includes(sender) === false) {
+    if ($('#unread-msg-' + sender).css('visibility') === 'hidden') {
+      $('#unread-msg-' + sender).css('visibility', 'visible');
+    }
+  }
+};
+var getActiveReciveBox = function getActiveReciveBox() {
+  var result = null;
+  $('.msg-box').find('*').map(function () {
+    if ($(this).css('display') === 'block' && $(this).hasClass('recived-box')) {
+      result = $(this);
+      return;
+    }
+  });
+  return result;
+};
+var getConnectedGuest = function getConnectedGuest() {
+  return getActiveReciveBox().attr('id').split('-')[2];
+};
+var generateTimeStamp = function generateTimeStamp() {
+  var now = new Date();
+  return now.toLocaleTimeString();
+};
+var clearBox = function clearBox(el) {
+  el.val('');
+};
+var isVideoOn = function isVideoOn() {
+  return $("#video-box").css("display") === "flex";
+};
+var setDefaultBoxHeight = function setDefaultBoxHeight(el) {
+  el.css('height', 'auto');
+};
+var createVideo = function createVideo() {
+  var userVideo = $('<video />', {
+    id: 'user-video',
+    autoplay: true
+  });
+  var guestVideo = $('<video />', {
+    id: 'guest-video',
+    autoplay: true
+  });
+  $('.user-video').append(userVideo);
+  $('.guest-video').append(guestVideo);
+  $("#video-box").fadeIn("slow").css('display', 'flex');
+};
+var removeVideo = function removeVideo() {
+  if ($("#user-video")[0].srcObject) {
+    $("#user-video")[0].srcObject.getTracks().forEach(function (track) {
+      return track.stop();
+    });
+  }
 
-/**
- * @callback generator
- * @param {number} bytes The number of bytes to generate.
- * @return {number[]} Random bytes.
- */
+  if ($("#guest-video")[0].srcObject) {
+    $("#guest-video")[0].srcObject.getTracks().forEach(function (track) {
+      return track.stop();
+    });
+  }
 
+  $('#user-video').remove();
+  $('#guest-video').remove();
+  $("#video-box").css('display', 'none').fadeOut("slow");
+};
+var changeCallBtnBackground = function changeCallBtnBackground() {
+  $('#call-btn').toggleClass('call-inactive');
+  $('.fa-phone').toggleClass('fa-phone-slash');
+};
+var autoSize = function autoSize(el) {
+  if (!isVideoOn()) {
+    setTimeout(function () {
+      el.style.cssText = 'height:auto; padding:0';
+      el.style.cssText = 'height:' + el.scrollHeight + 'px';
+    }, 0);
+  }
+};
+var setRecivedBoxScrollBar = function setRecivedBoxScrollBar() {
+  getActiveReciveBox().scrollTop(getActiveReciveBox()[0].scrollHeight);
+};
+var captureUserCamera = function captureUserCamera(peer) {
+  var constraints = {
+    video: true,
+    audio: true
+  };
 
-/***/ }),
-/* 20 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var alphabet = __webpack_require__(14);
-
-function isShortId(id) {
-    if (!id || typeof id !== 'string' || id.length < 6 ) {
-        return false;
+  if (navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
+      $("#user-video")[0].srcObject = new MediaStream(stream.getVideoTracks());
+      localStream = stream;
+    }).then(function () {
+      $.get('/getUserPeer', {
+        login: getConnectedGuest()
+      }, function (guestPeer, status) {
+        call = peer.call(guestPeer, localStream);
+      });
+    })["catch"](function (e) {
+      console.log(e);
+    });
+  } else {
+    alert("Can not acces user camera");
+  }
+};
+var handleVideo = function handleVideo(peer) {
+  if (connection !== null) {
+    if (!isVideoOn()) {
+      createVideo();
+      captureUserCamera(peer);
+    } else {
+      removeVideo();
+      call.close();
+      localStream = null;
     }
 
-    var nonAlphabetic = new RegExp('[^' +
-      alphabet.get().replace(/[|\\{}()[\]^$+*?.-]/g, '\\$&') +
-    ']');
-    return !nonAlphabetic.test(id);
-}
+    changeCallBtnBackground();
+  } else {
+    alert('First select guest');
+  }
+};
+var sendMsg = function sendMsg() {
+  if (connection !== null) {
+    var message = {
+      sender: getCookie('login'),
+      content: $('#send-box').val()
+    };
+    connection.send(message);
+  }
+};
+var connect = function connect(guestLogin, peer) {
+  $.get('/getUserPeer', {
+    login: guestLogin
+  }, function (guestPeer, status) {
+    connection = peer.connect(guestPeer);
+    connection.on('open', function () {});
+  });
+};
+var setUserBoxBackgroundColor = function setUserBoxBackgroundColor(userBox) {
+  $('.single-user-box').css('background-color', '');
+  userBox.css('background-color', 'rgba(9, 64, 109, 0.486)');
+};
+var displayUserInfo = function displayUserInfo(user) {
+  $.get('/getUserInfo', {
+    login: user.login
+  }, function (user, status) {
+    $('#conn-title').text(user.login);
+    $('#conn-status').text('Status: ' + user.status);
+    $('#conn-mail').text('Email: ' + user.mail);
 
-module.exports = isShortId;
+    if (user.activity === '') {
+      $('#conn-activity').text('Last login: never');
+    } else {
+      $('#conn-activity').text('Last login: ' + user.activity);
+    }
 
+    if ($(".connection-info").css("display") === "none") {
+      $(".connection-info").fadeIn("slow").css('display', 'block');
+    } else {
+      $(".connection-info").fadeOut('fast');
+      $(".connection-info").fadeIn("slow").css('display', 'block');
+    }
+  });
+};
+var displayUserReciveBox = function displayUserReciveBox(user) {
+  $('.recived-box').css('display', 'none');
+  $('#recived-box-' + user.login).css('display', 'block');
+};
+var handleUsers = function handleUsers(peer) {
+  $.get('/getUsers', function (users, status) {
+    users.forEach(function (user) {
+      if (user.login !== getCookie('login')) {
+        var userBox = $("<div class='single-user-box'></div>");
+        var userNick = $("<div class='single-nick-box'></div>").text(user.login);
+        var unreadMsg = $("<div class='unread-msg' id='unread-msg-" + user.login + "'></div>").append('<i class="far fa-envelope"></i>');
+        unreadMsg.css('visibility', 'hidden');
+        userBox.append(userNick).append(unreadMsg);
+        var reciveMsgBox = $('<div class="recived-box scroll" id="recived-box-' + user.login + '"></div>').css('display', 'none');
+        $('.msg-box').prepend(reciveMsgBox);
+        userBox.click(function () {
+          setUserBoxBackgroundColor(userBox);
+          connect(user.login, peer);
+          displayUserInfo(user);
+          displayUserReciveBox(user);
+          userBox.find('.unread-msg').css('visibility', 'hidden');
+        });
+        $('.users-list').append(userBox);
+      } else {
+        $('#conn-title').text('Hi, ' + user.login + ' !');
+      }
+    });
+  });
+};
+var getCookie = function getCookie(key) {
+  var cookies = document.cookie.replace(/\s+/g, '').split(';');
 
-/***/ }),
-/* 21 */
-/***/ (function(module, exports, __webpack_require__) {
+  if (cookies.length === 0) {
+    console.log("No cookies available");
+    return;
+  }
 
-"use strict";
+  var cookieObj = {};
 
+  for (var i = 0; i < cookies.length; i++) {
+    var _key = cookies[i].substring(0, cookies[i].indexOf('='));
 
-module.exports = 0;
+    cookieObj[_key] = cookies[i].substring(cookies[i].indexOf('=') + 1, cookies[i].length);
+  }
 
+  return cookieObj[key];
+};
+var logOut = function logOut() {
+  // co ? ? ? 
+  $.get('/logout', function (data, status) {
+    $.get('/logout', function (data, status) {
+      window.location.replace(data.url);
+    });
+  });
+};
+var handleMenu = function handleMenu(event) {
+  $('#menu-btn').click(function () {
+    $('#menu-btn').css('display', 'none');
+    $('.menu').css('display', 'block');
+  });
+
+  if (event.pageX < $(window).width() - $('.menu').width()) {
+    $('.menu').css('display', 'none');
+    $('#menu-btn').css('display', 'block');
+  }
+};
+var searchUser = function searchUser() {
+  $('.users-list').find('*').map(function () {
+    if ($(this).text().includes($('.search-user-box').val())) {
+      $(this).css('display', 'block');
+    } else {
+      $(this).css('display', 'none');
+    }
+  });
+};
+var isEnterPressed = function isEnterPressed(e) {
+  var asciiEnter = 13;
+  return e.keyCode === asciiEnter;
+};
 
 /***/ })
 /******/ ]);

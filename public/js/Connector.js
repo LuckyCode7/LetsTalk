@@ -1,10 +1,9 @@
 import Peer from 'peerjs';
-const shortid = require('shortid');
 
 export class Connector {
-    constructor() {
-        this.connection = undefined;
-        this.peer = new Peer(shortid.generate(), {
+    constructor(peer) {
+        this.connection = null;
+        this.peer = new Peer(peer, {
             config: {
                 'iceServers': [
                     { url: 'stun:stun1.l.google.com:19302' },
@@ -16,10 +15,10 @@ export class Connector {
                 ]
             }
         });
+    }
 
-        this.peer.on('open', () => {
-            $('#user-id').text(this.peer.id);
-        });
+    onOpenConnection(callback) {
+        this.peer.on('open', callback);
     }
 
     connect() {
@@ -67,8 +66,4 @@ export class Connector {
             // use call.close() to finish a call
         });
     }
-
-
-
-
 }

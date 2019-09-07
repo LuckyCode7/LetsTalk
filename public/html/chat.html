@@ -19,20 +19,29 @@
                 <div class="video-box" id="video-box">
 
                     <div class="guest-video">
-                        <video id="guest-video"></video>
+                        <!-- <video id="guest-video"></video> -->
                     </div>
                     <div class="user-video">
-                        <video id="user-video" autoplay></video>
+                        <!-- <video id="user-video" autoplay></video> -->
                     </div>
                 </div>
                 <div class="talk-box">
-                    <div class="users-box"></div>
+
+                    <div class="users-box">
+                        <input class="search-user-box" type="text" name="search">
+
+                        <div class="search-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="users-list"></div>
+                    </div>
+
                     <div class="data-box">
 
 
-                        <!-- <input id="guest-id" type="text" placeholder="Type your's guest ID here"> -->
-                        <div class="connection-info" id="conn-title"></div>
-                        <div class="connection-info" id="conn-login"></div>
+
+                        <div class="connection-title" id="conn-title"></div>
+
                         <div class="connection-info" id="conn-status"></div>
                         <div class="connection-info" id="conn-mail"></div>
                         <div class="connection-info" id="conn-activity"></div>
@@ -41,6 +50,7 @@
 
                     </div>
                     <div class="msg-box">
+
                         <div class="recived-box scroll" id="recived-box"></div>
                         <div class="management-panel">
                             <button class="call-btn call-active" id="call-btn">
@@ -54,12 +64,20 @@
                     </div>
                 </div>
             </main>
-            <nav class="menu">
-                <div class="menu-icon" id="logout-btn">
-                    <i class="fas fa-power-off"></i>
+            <nav>
+                <div id="menu-btn">
+                    <i class="fas fa-bars"></i>
                 </div>
-                <div class="menu-icon" id="user-settings-btn">
-                    <i class="fas fa-user-cog"></i>
+                <div class="menu">
+                    <div class="menu-icon" id="logout-btn">
+                        <i class="fas fa-power-off"></i>
+                    </div>
+                    <div class="menu-icon" id="user-settings-btn">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
+                    <!-- <div class="menu-icon" id="close-menu-btn">
+                        <i class="far fa-times-circle"></i>
+                    </div> -->
                 </div>
             </nav>
             <!-- <footer class="footer"></footer> -->
