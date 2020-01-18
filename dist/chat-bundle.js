@@ -242,7 +242,7 @@ function () {
 
       this.peer.on('connection', function (conn) {
         conn.on('data', function (message) {
-          callback(message, "single-guest-msg", _this);
+          callback(message, _this);
         });
       });
     }
@@ -264,11 +264,19 @@ function () {
     key: "sendLocalStreamToGuest",
     value: function sendLocalStreamToGuest(guestPeer) {
       this.call = this.peer.call(guestPeer, this.localStream);
+      this.call.on('stream', function (stream) {
+        $("#guest-video")[0].srcObject = stream;
+      });
     }
   }, {
     key: "isConnectionCreated",
     value: function isConnectionCreated() {
       return this.connection !== null;
+    }
+  }, {
+    key: "isCalling",
+    value: function isCalling() {
+      return this.call !== null;
     }
   }, {
     key: "setLocalStream",
@@ -283,7 +291,10 @@ function () {
   }, {
     key: "stopStreaming",
     value: function stopStreaming() {
-      this.call.close();
+      if (this.call != null) {
+        this.call.close();
+      }
+
       this.call = null;
       this.localStream = null;
     }
@@ -463,14 +474,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleLogoutButtonClick", function() { return handleLogoutButtonClick; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleDisplayMenu", function() { return handleDisplayMenu; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "handleSearchUser", function() { return handleSearchUser; });
+/* harmony import */ var _message_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(14);
+
+
 var displayMsg = function displayMsg(message, mode, connector) {
-  if (message.content !== "") {
-    var singleMsgBox = $("<div class='" + mode + "'></div>").text(message.content);
+  if (!message.isEmpty()) {
+    var singleMsgBox = $("<div class='" + mode + "'></div>").text(message.getContent());
     var timeStamp = $("<div class=time-stamp></div>").text(generateTimeStamp());
     singleMsgBox.append(timeStamp);
 
     switch (mode) {
-      case 'single-user-msg':
+      case _message_js__WEBPACK_IMPORTED_MODULE_0__["MSGMODE"].USER:
         if (!connector.isConnectionCreated()) {
           alert('First select the guest');
           return;
@@ -479,9 +493,9 @@ var displayMsg = function displayMsg(message, mode, connector) {
         getActiveReciveBox().append(singleMsgBox);
         break;
 
-      case 'single-guest-msg':
-        $('#recived-box-' + message.sender).append(singleMsgBox);
-        displayUnreadMsgIcon(message.sender);
+      case _message_js__WEBPACK_IMPORTED_MODULE_0__["MSGMODE"].GUEST:
+        $('#recived-box-' + message.getSender()).append(singleMsgBox);
+        displayUnreadMsgIcon(message.getSender());
         displayUnreadMsgIcon();
         break;
     }
@@ -578,8 +592,7 @@ var setRecivedBoxScrollBar = function setRecivedBoxScrollBar() {
   getActiveReciveBox().scrollTop(getActiveReciveBox()[0].scrollHeight);
 };
 
-var captureUserCamera = function captureUserCamera(connector) {
-  //peer
+var captureUserCamera = function captureUserCamera(connector, callback) {
   var constraints = {
     video: true,
     audio: true
@@ -590,11 +603,7 @@ var captureUserCamera = function captureUserCamera(connector) {
       $("#user-video")[0].srcObject = new MediaStream(stream.getVideoTracks());
       connector.setLocalStream(stream);
     }).then(function () {
-      $.get('/getUserPeer', {
-        login: getConnectedGuest()
-      }, function (guestPeer, status) {
-        connector.sendLocalStreamToGuest(guestPeer);
-      });
+      callback();
     })["catch"](function (e) {
       console.log(e);
     });
@@ -603,28 +612,8 @@ var captureUserCamera = function captureUserCamera(connector) {
   }
 };
 
-var handleVideo = function handleVideo(connector) {
-  if (!connector.isConnectionCreated()) {
-    if (!isVideoOn()) {
-      createVideo();
-      captureUserCamera(connector);
-    } else {
-      removeVideo();
-      connector.stopStreaming();
-    }
-
-    changeCallBtnBackground();
-  } else {
-    alert('First select guest');
-  }
-};
-
-var sendMsg = function sendMsg(connector) {
+var sendMsg = function sendMsg(message, connector) {
   if (connector.isConnectionCreated()) {
-    var message = {
-      sender: getCookie('login'),
-      content: $('#send-box').val()
-    };
     connector.sendMessageToGuest(message);
   }
 };
@@ -668,12 +657,6 @@ var displayUserInfo = function displayUserInfo(user) {
 var displayUserReciveBox = function displayUserReciveBox(user) {
   $('.recived-box').css('display', 'none');
   $('#recived-box-' + user.login).css('display', 'block');
-};
-
-var logOut = function logOut() {
-  $.get('/logout', function (data, status) {
-    window.location.replace(data.url);
-  });
 };
 
 var isEnterPressed = function isEnterPressed(e) {
@@ -724,42 +707,56 @@ var handleUsers = function handleUsers(connector) {
     });
   });
 };
-var handleRecivedMessage = function handleRecivedMessage(message, mode, connector) {
-  displayMsg(message, mode, connector);
+var handleRecivedMessage = function handleRecivedMessage(input, connector) {
+  switch (input.type) {
+    case _message_js__WEBPACK_IMPORTED_MODULE_0__["MSGTYPE"].TXT:
+      displayMsg(new _message_js__WEBPACK_IMPORTED_MODULE_0__["Message"](input.type, input.content, input.sender), _message_js__WEBPACK_IMPORTED_MODULE_0__["MSGMODE"].GUEST, connector);
+      break;
+
+    case _message_js__WEBPACK_IMPORTED_MODULE_0__["MSGTYPE"].ORDER:
+      // handleRecivedOrder(input);
+      break;
+  }
+
   setRecivedBoxScrollBar();
-};
+}; // const handleRecivedOrder = (input) => {
+//     switch (input.content) {
+//         case ORDERTYPE.REJECTED_CALL:
+//             if (isVideoOn()) {
+//                 removeVideo();
+//                 connector.stopStreaming();
+//                 alert(getConnectedGuest() + "rejected the call");
+//             }
+//             break;
+//     }
+// }
+
 var handleRecivedStream = function handleRecivedStream(call, connector) {
   var acceptCall = null;
 
-  if (isVideoOn()) {
+  if (!isVideoOn()) {
     acceptCall = confirm("Videocall incoming, do you want to accept it ?");
-  }
 
-  if (acceptCall === true) {
-    handleVideo(connector);
-    call.answer(connect.getLocalStream());
-    call.on('stream', function (stream) {
-      $("#guest-video")[0].srcObject = stream;
-    });
-    call.on('close', function () {
-      alert("The videocall has finished");
-    });
-  } else {// call.answer(Action.localStream);
-    // call.on('stream', stream => {
-    //     $("#guest-video")[0].srcObject = stream;
-    // });
-    // // Handle when the call finishes
-    // call.on('close', function() {
-    //     alert("The videocall has finished");
-    // });
-  }
+    if (acceptCall === true) {
+      createVideo();
+      captureUserCamera(connector, function () {
+        call.answer(connector.getLocalStream());
+      });
+      call.on('stream', function (stream) {
+        $("#guest-video")[0].srcObject = stream;
+      });
+      call.on('close', function () {
+        console.log("The videocall has finished");
+      });
+      changeCallBtnBackground();
+    }
+  } else {}
 };
 var handleSendButtonClick = function handleSendButtonClick(connector) {
-  displayMsg({
-    sender: getCookie('login'),
-    content: $('#send-box').val()
-  }, "single-user-msg", connector);
-  sendMsg(connector);
+  //zmiana
+  var message = new _message_js__WEBPACK_IMPORTED_MODULE_0__["Message"](_message_js__WEBPACK_IMPORTED_MODULE_0__["MSGTYPE"].TXT, $('#send-box').val(), getCookie('login'));
+  displayMsg(message, _message_js__WEBPACK_IMPORTED_MODULE_0__["MSGMODE"].USER, connector);
+  sendMsg(message.toNativeObject(), connector);
   setDefaultBoxHeight($('#send-box'));
   clearBox($('#send-box'));
   setRecivedBoxScrollBar();
@@ -767,11 +764,9 @@ var handleSendButtonClick = function handleSendButtonClick(connector) {
 var handleSendBoxEnterPressd = function handleSendBoxEnterPressd(event, connector) {
   if (isEnterPressed(event)) {
     event.preventDefault();
-    displayMsg({
-      sender: getCookie('login'),
-      content: $('#send-box').val()
-    }, "single-user-msg", connector);
-    sendMsg(connector);
+    var message = new _message_js__WEBPACK_IMPORTED_MODULE_0__["Message"](_message_js__WEBPACK_IMPORTED_MODULE_0__["MSGTYPE"].TXT, $('#send-box').val(), getCookie('login'));
+    displayMsg(message, _message_js__WEBPACK_IMPORTED_MODULE_0__["MSGMODE"].USER, connector);
+    sendMsg(message.toNativeObject(), connector);
     setDefaultBoxHeight($('#send-box'));
     clearBox($('#send-box'));
     setRecivedBoxScrollBar();
@@ -780,10 +775,30 @@ var handleSendBoxEnterPressd = function handleSendBoxEnterPressd(event, connecto
   }
 };
 var handleCallButtonClick = function handleCallButtonClick(connector) {
-  handleVideo(connector);
+  if (!connector.isConnectionCreated() && !isVideoOn()) {
+    alert('First select guest');
+  } else {
+    if (isVideoOn()) {
+      removeVideo();
+      connector.stopStreaming();
+    } else {
+      createVideo();
+      captureUserCamera(connector, function () {
+        $.get('/getUserPeer', {
+          login: getConnectedGuest()
+        }, function (guestPeer, status) {
+          connector.sendLocalStreamToGuest(guestPeer);
+        });
+      });
+    }
+
+    changeCallBtnBackground();
+  }
 };
 var handleLogoutButtonClick = function handleLogoutButtonClick() {
-  logOut();
+  $.get('/logout', function (data, status) {
+    window.location.replace(data.url);
+  });
 };
 var handleDisplayMenu = function handleDisplayMenu(event) {
   $('#menu-btn').click(function () {
@@ -805,6 +820,77 @@ var handleSearchUser = function handleSearchUser() {
     }
   });
 };
+
+/***/ }),
+/* 14 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MSGTYPE", function() { return MSGTYPE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MSGMODE", function() { return MSGMODE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Message", function() { return Message; });
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var MSGTYPE = {
+  TXT: 'txt',
+  ORDER: 'order'
+};
+var MSGMODE = {
+  USER: 'single-user-msg',
+  GUEST: 'single-guest-msg' // export const ORDERTYPE = {
+  //     REJECTED_CALL = 'RC'
+  // }
+
+};
+var Message =
+/*#__PURE__*/
+function () {
+  function Message(type, content, sender) {
+    _classCallCheck(this, Message);
+
+    this.type = type;
+    this.content = content;
+    this.sender = sender;
+  }
+
+  _createClass(Message, [{
+    key: "toNativeObject",
+    value: function toNativeObject() {
+      return {
+        type: this.type,
+        content: this.content,
+        sender: this.sender
+      };
+    }
+  }, {
+    key: "getType",
+    value: function getType() {
+      return this.type;
+    }
+  }, {
+    key: "getContent",
+    value: function getContent() {
+      return this.content;
+    }
+  }, {
+    key: "getSender",
+    value: function getSender() {
+      return this.sender;
+    }
+  }, {
+    key: "isEmpty",
+    value: function isEmpty() {
+      return this.content === "";
+    }
+  }]);
+
+  return Message;
+}();
 
 /***/ })
 /******/ ]);

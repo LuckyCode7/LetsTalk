@@ -1,12 +1,14 @@
+import { MSGTYPE, MSGMODE, Message } from './message.js';
+
 const displayMsg = (message, mode, connector) => {
-    if (message.content !== "") {
-        const singleMsgBox = $("<div class='" + mode + "'></div>").text(message.content);
+    if (!message.isEmpty()) {
+        const singleMsgBox = $("<div class='" + mode + "'></div>").text(message.getContent());
         const timeStamp = $("<div class=time-stamp></div>").text(generateTimeStamp());
 
         singleMsgBox.append(timeStamp);
 
         switch (mode) {
-            case 'single-user-msg':
+            case MSGMODE.USER:
                 if (!connector.isConnectionCreated()) {
                     alert('First select the guest');
                     return;
@@ -16,10 +18,10 @@ const displayMsg = (message, mode, connector) => {
 
                 break;
 
-            case 'single-guest-msg':
-                $('#recived-box-' + message.sender).append(singleMsgBox);
+            case MSGMODE.GUEST:
+                $('#recived-box-' + message.getSender()).append(singleMsgBox);
 
-                displayUnreadMsgIcon(message.sender);
+                displayUnreadMsgIcon(message.getSender());
 
                 displayUnreadMsgIcon();
 
@@ -121,7 +123,7 @@ const setRecivedBoxScrollBar = () => {
     getActiveReciveBox().scrollTop(getActiveReciveBox()[0].scrollHeight);
 }
 
-const captureUserCamera = (connector) => { //peer
+const captureUserCamera = (connector, callback) => {
     const constraints = { video: true, audio: true };
 
     if (navigator.mediaDevices.getUserMedia) {
@@ -129,9 +131,7 @@ const captureUserCamera = (connector) => { //peer
             $("#user-video")[0].srcObject = new MediaStream(stream.getVideoTracks());
             connector.setLocalStream(stream);
         }).then(() => {
-            $.get('/getUserPeer', { login: getConnectedGuest() }, (guestPeer, status) => {
-                connector.sendLocalStreamToGuest(guestPeer);
-            });
+            callback();
         }).catch(e => {
             console.log(e);
         });
@@ -140,28 +140,8 @@ const captureUserCamera = (connector) => { //peer
     }
 }
 
-const handleVideo = connector => {
-    if (!connector.isConnectionCreated()) {
-        if (!isVideoOn()) {
-            createVideo();
-            captureUserCamera(connector);
-        } else {
-            removeVideo();
-            connector.stopStreaming();
-        }
-        changeCallBtnBackground();
-    } else {
-        alert('First select guest');
-    }
-}
-
-const sendMsg = (connector) => {
+const sendMsg = (message, connector) => {
     if (connector.isConnectionCreated()) {
-        const message = {
-            sender: getCookie('login'),
-            content: $('#send-box').val()
-        }
-
         connector.sendMessageToGuest(message);
     }
 }
@@ -200,12 +180,6 @@ const displayUserInfo = user => {
 const displayUserReciveBox = user => {
     $('.recived-box').css('display', 'none');
     $('#recived-box-' + user.login).css('display', 'block');
-}
-
-const logOut = () => {
-    $.get('/logout', (data, status) => {
-        window.location.replace(data.url);
-    });
 }
 
 const isEnterPressed = (e) => {
@@ -273,50 +247,64 @@ export const handleUsers = (connector) => {
     });
 }
 
-export const handleRecivedMessage = (message, mode, connector) => {
-    displayMsg(message, mode, connector);
+export const handleRecivedMessage = (input, connector) => {
+    switch (input.type) {
+        case MSGTYPE.TXT:
+            displayMsg(new Message(input.type, input.content, input.sender), MSGMODE.GUEST, connector);
+            break;
+        case MSGTYPE.ORDER:
+            // handleRecivedOrder(input);
+            break;
+    }
     setRecivedBoxScrollBar();
 }
+
+// const handleRecivedOrder = (input) => {
+//     switch (input.content) {
+//         case ORDERTYPE.REJECTED_CALL:
+//             if (isVideoOn()) {
+//                 removeVideo();
+//                 connector.stopStreaming();
+//                 alert(getConnectedGuest() + "rejected the call");
+//             }
+//             break;
+//     }
+// }
 
 export const handleRecivedStream = (call, connector) => {
     let acceptCall = null;
 
-    if (isVideoOn()) {
+    if (!isVideoOn()) {
         acceptCall = confirm("Videocall incoming, do you want to accept it ?");
-    }
 
-    if (acceptCall === true) {
+        if (acceptCall === true) {
 
-        handleVideo(connector);
+            createVideo();
 
-        call.answer(connect.getLocalStream());
+            captureUserCamera(connector, () => {
+                call.answer(connector.getLocalStream());
+            });
 
-        call.on('stream', stream => {
-            $("#guest-video")[0].srcObject = stream;
-        });
+            call.on('stream', stream => {
+                $("#guest-video")[0].srcObject = stream;
+            });
 
-        call.on('close', () => {
-            alert("The videocall has finished");
-        });
+            call.on('close', () => {
+                console.log("The videocall has finished");
+            });
 
+            changeCallBtnBackground();
+        }
     } else {
-        // call.answer(Action.localStream);
 
-        // call.on('stream', stream => {
-        //     $("#guest-video")[0].srcObject = stream;
 
-        // });
-
-        // // Handle when the call finishes
-        // call.on('close', function() {
-        //     alert("The videocall has finished");
-        // });
     }
 }
 
-export const handleSendButtonClick = (connector) => {
-    displayMsg({ sender: getCookie('login'), content: $('#send-box').val() }, "single-user-msg", connector);
-    sendMsg(connector);
+export const handleSendButtonClick = (connector) => { //zmiana
+    const message = new Message(MSGTYPE.TXT, $('#send-box').val(), getCookie('login'));
+    displayMsg(message, MSGMODE.USER, connector);
+    sendMsg(message.toNativeObject(), connector);
     setDefaultBoxHeight($('#send-box'));
     clearBox($('#send-box'));
     setRecivedBoxScrollBar();
@@ -325,8 +313,9 @@ export const handleSendButtonClick = (connector) => {
 export const handleSendBoxEnterPressd = (event, connector) => {
     if (isEnterPressed(event)) {
         event.preventDefault();
-        displayMsg({ sender: getCookie('login'), content: $('#send-box').val() }, "single-user-msg", connector);
-        sendMsg(connector);
+        const message = new Message(MSGTYPE.TXT, $('#send-box').val(), getCookie('login'));
+        displayMsg(message, MSGMODE.USER, connector);
+        sendMsg(message.toNativeObject(), connector);
         setDefaultBoxHeight($('#send-box'));
         clearBox($('#send-box'));
         setRecivedBoxScrollBar();
@@ -336,11 +325,29 @@ export const handleSendBoxEnterPressd = (event, connector) => {
 }
 
 export const handleCallButtonClick = (connector) => {
-    handleVideo(connector);
+
+    if (!connector.isConnectionCreated() && !isVideoOn()) {
+        alert('First select guest');
+    } else {
+        if (isVideoOn()) {
+            removeVideo();
+            connector.stopStreaming();
+        } else {
+            createVideo();
+            captureUserCamera(connector, () => {
+                $.get('/getUserPeer', { login: getConnectedGuest() }, (guestPeer, status) => {
+                    connector.sendLocalStreamToGuest(guestPeer);
+                });
+            });
+        }
+        changeCallBtnBackground();
+    }
 }
 
 export const handleLogoutButtonClick = () => {
-    logOut();
+    $.get('/logout', (data, status) => {
+        window.location.replace(data.url);
+    });
 }
 
 export const handleDisplayMenu = (event) => {

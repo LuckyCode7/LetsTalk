@@ -20,7 +20,7 @@ export class Connector {
     onReciveMessage(callback) {
         this.peer.on('connection', conn => {
             conn.on('data', message => {
-                callback(message, "single-guest-msg", this);
+                callback(message, this);
             });
         });
     }
@@ -37,10 +37,18 @@ export class Connector {
 
     sendLocalStreamToGuest(guestPeer) {
         this.call = this.peer.call(guestPeer, this.localStream);
+        this.call.on('stream', stream => {
+            $("#guest-video")[0].srcObject = stream;
+
+        });
     }
 
     isConnectionCreated() {
         return this.connection !== null;
+    }
+
+    isCalling() {
+        return this.call !== null;
     }
 
     setLocalStream(stream) {
@@ -52,7 +60,9 @@ export class Connector {
     }
 
     stopStreaming() {
-        this.call.close();
+        if (this.call != null) {
+            this.call.close();
+        }
         this.call = null;
         this.localStream = null;
     }
