@@ -1,61 +1,90 @@
 const path = require('path');
 
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
-    mode: 'none',
-    entry: {
-        app: './public/js/app.js',
-        chat: './public/js/chat.js'
+  mode: 'production',
+  entry: {
+    app: path.resolve(__dirname, 'public', 'js', 'app.js'),
+    chat: path.resolve(__dirname, 'public', 'js', 'chat.js')
+  },
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: "[name]-bundle.js"
+  },
+  watch: true,
+  devtool: 'source-map',
+  module: {
+    rules: [ {
+      test: /\.js$/,
+      exclude: /node_modules/,
+      use: {
+        loader: 'babel-loader',
+        options: {
+          presets: [ '@babel/preset-env' ]
+        }
+      }
     },
-    output: {
-        path: path.resolve(__dirname, './dist'),
-        filename: "[name]-bundle.js"
+    {
+      test: /\.(png|jpg|gif)$/i,
+      exclude: /node_modules/,
+      use: [ {
+        loader: 'file-loader',
+        options:
+        {
+          name: '[name]-bundle.[ext]',
+        }
+      } ]
     },
-    watch: true,
-    devtool: 'source-map',
-    module: {
-        rules: [{
-                test: /\.js$/,
-                exclude: /node_modules/,
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['@babel/preset-env']
-                    }
-                }
-            },
-            {
-                test: /\.(png|jpg|gif)$/i,
-                exclude: /node_modules/,
-                use: 'file-loader'
-            },
-            {
-                test: /\.scss$/,
-                exclude: /node_modules/,
-                use: ExtractTextPlugin.extract({
-                    fallback: 'style-loader',
-                    use: [{
-                            loader: 'css-loader',
+    {
+      test: /\.scss$/,
+      exclude: /node_modules/,
 
-                        },
-                        {
-                            loader: 'postcss-loader',
-                            options: {
-                                plugins: (loader) => [
-                                    new require('autoprefixer')(),
-                                ]
-                            }
-                        },
-                        {
-                            loader: 'sass-loader'
-                        }
-                    ]
-                })
-            }
-        ]
+      use: [
+        // Uncomment to generate bundle-css file
+        //MiniCssExtractPlugin.loader,
+
+        // Inject CSS into the DOM
+        'style-loader',
+
+        // Interprets @import and url() like import/require() and resolves them
+        'css-loader',
+
+        // Loads a Sass/SCSS file and compiles it to CSS
+        'sass-loader',
+      ]
     },
-    plugins: [
-        new ExtractTextPlugin('style.css'),
+    {
+      test: /\.html$/,
+      exclude: /node_modules/,
+      use: [ {
+        loader: 'html-loader',
+        options:
+        {
+          minimize: true,
+        }
+      } ]
+    }
     ]
+  },
+  plugins: [
+    new MiniCssExtractPlugin({
+      filename: 'style-bundle.css',
+    }),
+    // By default exports sr/index.html
+    new HtmlWebpackPlugin(),
+    new HtmlWebpackPlugin({
+      filename: 'chat.html',
+      template: path.resolve(__dirname, 'public', 'html', 'chat.html'),
+    }),
+    // By default cleans dist directory
+    new CleanWebpackPlugin()
+  ],
+  resolve: {
+    extensions: [ '.js', '.scss', '.html' ]
+  }
 };
