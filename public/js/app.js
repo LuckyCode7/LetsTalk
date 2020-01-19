@@ -1,4 +1,7 @@
-require('../style/main.scss');
+const path = require('path');
+
+import '../style/main.scss';
+
 import { Intro, Animation } from './Animation.js';
 
 $(document).ready(() => {
