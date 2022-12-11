@@ -48,7 +48,7 @@
     },
     "dependencies": {
         "autoprefixer": "9.6.1",
-        "express": "4.17.1",
+        "express": "4.17.3",
         "moment": "2.24.0",
         "peer": "0.2.10",
         "peerjs": "1.0.0",
